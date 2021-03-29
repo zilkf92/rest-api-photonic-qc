@@ -3,6 +3,15 @@ from rest_framework import serializers
 from profiles_api import models
 
 
+class RequestDataSerializer(serializers.ModelSerializer):
+    """Serializer for ReqeustData Model"""
+    user = serializers.ReadOnlyField(source='user.name')
+
+    class Meta:
+        model = models.RequestData
+        fields = '__all__'
+
+
 class HelloSerializer(serializers.Serializer):
     """Serializers a name field for testing our APIView"""
     name = serializers.CharField(max_length=10)
@@ -38,3 +47,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
             instance.set_password(password)
 
         return super().update(instance, validated_data)
+
+
+class ProfileFeedItemSerializer(serializers.ModelSerializer):
+    """Serializes profile feed items"""
+
+    class Meta:
+        model = models.ProfileFeedItem
+        fields = ('id', 'user_profile', 'status_text', 'created_on')
+        extra_kwargs = {'user_profile': {'read_only': True}}

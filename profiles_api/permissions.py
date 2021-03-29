@@ -9,5 +9,26 @@ class UpdateOwnProfile(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-            return obj.id == request.user.id
-            
+        return obj.id == request.user.id
+
+
+class IsOwnerOrAdmin(permissions.BasePermission):
+    """Allows Users to view only their respective Request Data"""
+
+    def has_object_permission(self, request, view, obj):
+
+        if request.user.is_superuser == True:
+            return True
+
+        return obj.id == request.user.id
+
+
+class AdminViewList(permissions.BasePermission):
+    """Allows Admin to see RequestData"""
+
+    def has_permission(self, request, view):
+
+        if view.action == "list":
+            return request.user.is_superuser
+        else:
+            return True
