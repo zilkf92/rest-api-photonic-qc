@@ -12,11 +12,18 @@ Vagrant.configure("2") do |config|
 
  # Every Vagrant development environment requires a box. You can search for
  # boxes at https://vagrantcloud.com/search.
- config.vm.box = "ubuntu/bionic64"
+ config.vm.box = "ubuntu/bionic64" #Operating System
  config.vm.box_version = "~> 20200304.0.0"
 
+ # Provider settings
+ # config.vm.provider "virtualbox" do |vb|
+ #   vb.memory = 2048
+ #   vb.cpus = 4
+
+ # Network settings - How host computer sees Vagrant box
  config.vm.network "forwarded_port", guest: 8000, host: 8000
 
+ # Commands run with vagrant up
  config.vm.provision "shell", inline: <<-SHELL
    systemctl disable apt-daily.service
    systemctl disable apt-daily.timer
