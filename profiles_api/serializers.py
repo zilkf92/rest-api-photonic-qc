@@ -14,6 +14,9 @@ class RequestDataSerializer(serializers.ModelSerializer):
 
 class HelloSerializer(serializers.Serializer):
     """Serializers a name field for testing our APIView"""
+
+    # Defines expected input for post, put or Patch
+    # And validates input
     name = serializers.CharField(max_length=10)
 
 

@@ -21,25 +21,35 @@ class RequestData(models.Model):
 
 
 class UserProfileManager(BaseUserManager):
-    """Manager for user profiles"""
+    """
+    Manager for user profiles with BaseUserManager as parent class
+    Manipulates objects within the model that the manager is for
+    """
 
     def create_user(self, email, name, password=None):
         """Create a new user profile"""
+        # Case when email is either empty string or null value
         if not email:
             raise ValueError('Users must have an email address')
 
         email = self.normalize_email(email)
         user = self.model(email=email, name=name)
 
+        # Use set_password function that comes with user model
+        # Makes sure the password is stored as hash in database
         user.set_password(password)
+        # Standard procedure for saving objects in Django
         user.save(using=self._db)
 
         return user
 
     def create_superuser(self, email, name, password):
         """Create and save a new superuser with given details"""
+        # Self is automatically passed in for any class functions
+        # So when you call it from a different function or a different part
         user = self.create_user(email, name, password)
 
+        # is_superuser is automatically created by PermissionsMixin
         user.is_superuser = True
         user.is_staff = True
         user.save(using=self._db)
@@ -52,10 +62,12 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
+    # Determines access to Django admin etc
     is_staff = models.BooleanField(default=False)
 
     objects = UserProfileManager()
 
+    #normally called username; USERNAME_FIELD required by default
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
 

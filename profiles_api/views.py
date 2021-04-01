@@ -30,9 +30,15 @@ class RequestDataViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
-
+# Hello World API View example
 class HelloApiView(APIView):
-    """Test API View"""
+    """Test API View
+    Creates a new class based on API View class from Django rest_framework
+    Allows to define application logic for the corresponding endpoint
+    Endpoint is assigned to view
+    """
+
+    # Configures APIView to have serializer class
     serializers_class = serializers.HelloSerializer
 
     def get(self, request, format=None):
@@ -50,6 +56,7 @@ class HelloApiView(APIView):
         """Create a hello message with our name"""
         serializer = self.serializers_class(data=request.data)
 
+        # Validate serializer
         if serializer.is_valid():
             name = serializer.validated_data.get('name')
             message = f'Hello {name}'
@@ -77,6 +84,9 @@ class HelloViewSet(viewsets.ViewSet):
     """Test API ViewSet"""
     serializers_class = serializers.HelloSerializer
 
+    # list is typically a HTTP GET to the root of the endpoint
+    # that is linked to view set, so what this does is list a set of objects
+    # that the view set represents
     def list(self, request):
         """Return a hello message"""
 
