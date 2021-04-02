@@ -23,16 +23,23 @@ class HelloSerializer(serializers.Serializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializes a user profile object"""
 
+    # ModelSerializer uses Meta class to configure the serializers
+    # to point to a specific model
     class Meta:
         model = models.UserProfile
         fields = ('id', 'email', 'name', 'password')
+        # Extra keyword args
         extra_kwargs = {
             'password': {
+                # Can only create new or update objects
+                # Get request will not include password field in its response
                 'write_only': True,
+                # Hide input while typing
                 'style': {'input_type': 'password'}
             }
         }
 
+    # Overwrite the create function and call create_user function
     def create(self, validated_data):
         """Create and return a new user"""
         user = models.UserProfile.objects.create_user(

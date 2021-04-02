@@ -8,6 +8,8 @@ from profiles_api import views
 # different routes that are available for the view set
 router = DefaultRouter()
 router.register('hello-viewset', views.HelloViewSet, base_name='hello-viewset')
+# base_name only necessary for view set without queryset
+# or to overwrite the name of the queryset
 router.register('profile', views.UserProfileViewSet)
 router.register('feed', views.UserProfileFeedViewSet)
 router.register('RequestData', views.RequestDataViewSet)
@@ -17,7 +19,7 @@ urlpatterns = [
     # to be rendered by url
     path('hello-view/', views.HelloApiView.as_view()),
     path('login/', views.UserLoginApiView.as_view()),
-    
+
     # Generates a list of URLs that are required
     # for all of the functions that are added to the viewset
     # which can be passed in to using path and include function
