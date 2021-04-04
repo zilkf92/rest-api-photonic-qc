@@ -46,7 +46,7 @@ class UserProfileManager(BaseUserManager):
     def create_superuser(self, email, name, password):
         """Create and save a new superuser with given details"""
         # Self is automatically passed in for any class functions
-        # So when you call it from a different function or a different part
+        # When it is called from a different function or a different part
         user = self.create_user(email, name, password)
 
         # is_superuser is automatically created by PermissionsMixin
@@ -67,7 +67,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
     objects = UserProfileManager()
 
-    #normally called username; USERNAME_FIELD required by default
+    # Normally called username; USERNAME_FIELD required by default
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name']
 
@@ -86,8 +86,14 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
 class ProfileFeedItem(models.Model):
     """Profile status update"""
+    # Link models to other models in Django with ForeignKey
+    # Here: can never create a ProfileFeedItem for a
+    # user profile that doesn't exist
     user_profile = models.ForeignKey(
+        # Could also be specified as string
         settings.AUTH_USER_MODEL,
+        # Specify what happens to ProfileFeedItem when user
+        # profile is deleted
         on_delete=models.CASCADE
     )
     status_text = models.CharField(max_length=255)

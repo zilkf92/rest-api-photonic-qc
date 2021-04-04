@@ -85,7 +85,7 @@ class HelloViewSet(viewsets.ViewSet):
     serializers_class = serializers.HelloSerializer
 
     # list is typically a HTTP GET to the root of the endpoint
-    # that is linked to view set, so what this does is list a set of objects
+    # that is linked to view set, so this lists a set of objects
     # that the view set represents
     def list(self, request):
         """Return a hello message"""
@@ -150,6 +150,14 @@ class UserProfileFeedViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
     serializer_class = serializers.ProfileFeedItemSerializer
     queryset = models.ProfileFeedItem.objects.all()
+    permission_classes = (
+        # Ensure that users can only update statuses where the user
+        # profile is assigned to their user
+        permissions.UpdateOwnStatus,
+        # Users must be authenticated to perform any request that is
+        # not a read request
+        IsAuthenticated,
+    )
 
     def perform_create(self, serializer):
         """Sets the user profile to the logged in user"""

@@ -123,7 +123,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-# Configure the custom user model in Django
+# Configure the default authentication model
 AUTH_USER_MODEL = 'profiles_api.UserProfile'
 
 # REST_FRAMEWORK = {
