@@ -1,3 +1,5 @@
+# Import standard base classes that are needed to use when overwriting or
+# customizing the default Django user model
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
@@ -6,7 +8,10 @@ from django.conf import settings
 
 
 class RequestData(models.Model):
-    """This is the model for the data structure that is expected from request"""
+    """
+    This is the model for the data structure that is expected from request
+    received from client
+    """
     data = models.TextField()
     access_token = models.CharField(max_length=255)
     shots = models.PositiveIntegerField()
@@ -19,11 +24,15 @@ class RequestData(models.Model):
     is_fetched = models.BooleanField(default=False)
     result = models.TextField(default="")
 
-
+# User Manager class tells Django how to work with the customized
+# user model in CLI. By default when a user is created it expects
+# a username and a password field but the username field has been
+# replaceed with an email field so a custom User Manager is needed.
 class UserProfileManager(BaseUserManager):
     """
-    Manager for user profiles with BaseUserManager as parent class
-    Manipulates objects within the model that the manager is for
+    Manager for user profiles with BaseUserManager as parent class.
+    Functions within this class are used to manipulate objects
+    within the model that the manager is for.
     """
 
     def create_user(self, email, name, password=None):
@@ -59,16 +68,23 @@ class UserProfileManager(BaseUserManager):
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     """Database model for user in the system"""
+    # Define various fields that model should provide
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
+    # Determines fields for the permission system
     is_active = models.BooleanField(default=True)
-    # Determines access to Django admin etc
+    # Determines acces to Django admin
     is_staff = models.BooleanField(default=False)
-
+    # Specify model manager
+    # This is required because the custom user model is used with
+    # the Django CLI
     objects = UserProfileManager()
 
-    # Normally called username; USERNAME_FIELD required by default
+    # Overwriting the default USERNAME_FIELD which is normally user name
+    # and replacing it with email field
+    # When users authenticate they provide email address and pw
     USERNAME_FIELD = 'email'
+    # Adding username to additional REQUIRED_FIELDS
     REQUIRED_FIELDS = ['name']
 
     def get_full_name(self):
@@ -79,8 +95,10 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         """Retrieve short name of user"""
         return self.name
 
+    # Converting a user profile object into a string
     def __str__(self):
         """Return string representation of our user"""
+        # String representation is email address
         return self.email
 
 
