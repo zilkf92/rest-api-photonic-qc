@@ -43,10 +43,12 @@ class UserProfileManager(BaseUserManager):
     def create_user(self, email, name, password=None):
         """Create a new user profile"""
         # Case when email is either empty string or null value
+        # Raise exception
         if not email:
             raise ValueError('Users must have an email address')
 
         email = self.normalize_email(email)
+        # By default self.model is set to the model that the manager is for
         user = self.model(email=email, name=name)
 
         # Use set_password function that comes with user model
