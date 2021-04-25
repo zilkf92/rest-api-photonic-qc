@@ -7,12 +7,11 @@ from django.contrib.auth.models import BaseUserManager
 from django.conf import settings
 
 
-class RequestData(models.Model):
+class Job(models.Model):
     """
-    This is the model for the data structure that is expected from request
-    received from client
+    This is the model for the job data structure that is sent to the Backend
     """
-    data = models.TextField()
+    experiment = models.TextField()
     access_token = models.CharField(max_length=255)
     shots = models.PositiveIntegerField()
     no_qubits = models.PositiveIntegerField()
@@ -22,7 +21,13 @@ class RequestData(models.Model):
         on_delete=models.CASCADE
         )
     is_fetched = models.BooleanField(default=False)
-    result = models.TextField(default="")
+
+
+class Result(models.Model):
+    """
+    This is the model for the result data structure that is sent to the Backend
+    """
+
 
 # User Manager class tells Django how to work with the customized
 # user model in CLI. By default when a user is created it expects

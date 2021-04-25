@@ -13,22 +13,41 @@ from profiles_api import models
 from profiles_api import permissions
 
 
-class RequestDataViewSet(viewsets.ModelViewSet):
-    """ViewSet for RequestData"""
-    queryset = models.RequestData.objects.all()
-    serializer_class = serializers.RequestDataSerializer
-    permission_classes = (permissions.IsOwnerOrAdmin, permissions.AdminViewList,)
+class JobView(APIView):
+    """
+    Implements get and post for Job model
+    """
+    permission_classes = (IsAuthenticated,)
 
-    def perform_create(self, serializer):
-
-        serializer.save(user=self.request.user)
-
-    def list(self, request):
-
-        queryset = models.RequestData.objects.filter(is_fetched=False)
-        serializer = serializers.RequestDataSerializer(queryset, many=True)
-
+    def get(self, request):
+        if request.user.is_staff:
+            if request.data.get('filtered'):
+                jobs = models.Job.objects.filter(is_fetched=False)
+            else:
+                jobs = models.Job.objects.all()
+        else:
+            if request.data.get('filtered'):
+                jobs = models.Job.objects.filter(
+                    user=request.user,
+                    is_fetched=False
+                )
+            else:
+                jobs = models.Job.objects.filter(user=request.user)
+        serializer = serializers.JobSerializer(jobs, many=True)
         return Response(serializer.data)
+
+    def post(self, request):
+        serializer = serializers.JobSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        job = serializer.save(user=request.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ResultView(APIView):
+    """
+    Implements get and post for Job model
+    """
+
 
 # Hello World API View example
 class HelloApiView(APIView):

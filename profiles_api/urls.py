@@ -12,13 +12,14 @@ router.register('hello-viewset', views.HelloViewSet, base_name='hello-viewset')
 # or to overwrite the name of the queryset
 router.register('profile', views.UserProfileViewSet)
 router.register('feed', views.UserProfileFeedViewSet)
-router.register('RequestData', views.RequestDataViewSet)
+
 
 urlpatterns = [
     # as_view is the standard function to convert APIView class
     # to be rendered by url
     path('hello-view/', views.HelloApiView.as_view()),
     path('login/', views.UserLoginApiView.as_view()),
+    path('job/', views.JobView.as_view()),
 
     # Generates a list of URLs that are required
     # for all of the functions that are added to the viewset

@@ -3,13 +3,17 @@ from rest_framework import serializers
 from profiles_api import models
 
 
-class RequestDataSerializer(serializers.ModelSerializer):
-    """Serializer for ReqeustData Model"""
-    user = serializers.ReadOnlyField(source='user.name')
+class JobSerializer(serializers.ModelSerializer):
+    """Serializes Job object"""
+
 
     class Meta:
-        model = models.RequestData
+        model = models.Job
         fields = '__all__'
+
+
+class ResultSerializer(serializers.ModelSerializer):
+    """Serializes Result object"""
 
 
 class HelloSerializer(serializers.Serializer):
