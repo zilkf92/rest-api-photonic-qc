@@ -5,7 +5,8 @@ from profiles_api import models
 
 class JobSerializer(serializers.ModelSerializer):
     """Serializes Job object"""
-
+    # Overwrites standard function of ModelSerializer
+    user = serializers.ReadOnlyField(source='user.name')
 
     class Meta:
         model = models.Job

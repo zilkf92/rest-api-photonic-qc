@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
 from django.conf import settings
+from django.core.validators import MaxValueValidator
 
 
 class Job(models.Model):
@@ -13,12 +14,13 @@ class Job(models.Model):
     """
     experiment = models.TextField()
     access_token = models.CharField(max_length=255)
-    shots = models.PositiveIntegerField()
-    no_qubits = models.PositiveIntegerField()
+    shots = models.PositiveIntegerField(validators=[MaxValueValidator(200),])
+    no_qubits = models.PositiveIntegerField(validators=[MaxValueValidator(6),])
     date = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE
+        on_delete=models.SET_NULL,
+        null = True,
         )
     is_fetched = models.BooleanField(default=False)
 

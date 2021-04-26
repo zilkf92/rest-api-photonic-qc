@@ -19,22 +19,39 @@ class JobView(APIView):
     """
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request):
-        if request.user.is_staff:
-            if request.data.get('filtered'):
-                jobs = models.Job.objects.filter(is_fetched=False)
+    def get(self, request, pk=None):
+        if pk is not None:
+            job = None
+            if request.user.is_staff:
+                if models.Job.objects.filter(pk=pk).exists():
+                    job = models.Job.objects.get(pk=pk)
+                    if request.data.get('fetch'):
+                        job.is_fetched = True
+                        job.save()
             else:
-                jobs = models.Job.objects.all()
+                if models.Job.objects.filter(pk=pk, user=request.user).exists():
+                    job = models.Job.objects.get(pk=pk, user=request.user)
+            if job is not None:
+                serializer = serializers.JobSerializer(job)
+                return Response(serializer.data)
+            else:
+                return Response('Job does not exist.')
         else:
-            if request.data.get('filtered'):
-                jobs = models.Job.objects.filter(
-                    user=request.user,
-                    is_fetched=False
-                )
+            if request.user.is_staff:
+                if request.data.get('filtered'):
+                    jobs = models.Job.objects.filter(is_fetched=False)
+                else:
+                    jobs = models.Job.objects.all()
             else:
-                jobs = models.Job.objects.filter(user=request.user)
-        serializer = serializers.JobSerializer(jobs, many=True)
-        return Response(serializer.data)
+                if request.data.get('filtered'):
+                    jobs = models.Job.objects.filter(
+                        user=request.user,
+                        is_fetched=False
+                        )
+                else:
+                    jobs = models.Job.objects.filter(user=request.user)
+            serializer = serializers.JobSerializer(jobs, many=True)
+            return Response(serializer.data)
 
     def post(self, request):
         serializer = serializers.JobSerializer(data=request.data)

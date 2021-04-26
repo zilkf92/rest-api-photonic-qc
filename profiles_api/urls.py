@@ -20,6 +20,7 @@ urlpatterns = [
     path('hello-view/', views.HelloApiView.as_view()),
     path('login/', views.UserLoginApiView.as_view()),
     path('job/', views.JobView.as_view()),
+    path('job/<int:pk>/', views.JobView.as_view()),
 
     # Generates a list of URLs that are required
     # for all of the functions that are added to the viewset

@@ -136,14 +136,14 @@ STATIC_URL = '/static/'
 # Configure the default authentication model
 AUTH_USER_MODEL = 'profiles_api.UserProfile'
 
-# REST_FRAMEWORK = {
-#     'DEFAULT_AUTHENTICATION_CLASSES': (
-#                'rest_framework.authentication.TokenAuthentication',
-#     ),
-#     'DEFAULT_PERMISSION_CLASSES':(
-#                 'rest_framework.permissions.IsAuthenticated',
-#     ),
-#
-# }
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+               'rest_framework.authentication.TokenAuthentication',
+    ),
+    # 'DEFAULT_PERMISSION_CLASSES':(
+    #             'rest_framework.permissions.IsAuthenticated',
+    # ),
+
+}
 
 STATIC_ROOT = 'static/'
