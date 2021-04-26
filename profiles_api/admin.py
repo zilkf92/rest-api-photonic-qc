@@ -8,3 +8,7 @@ admin.site.register(models.UserProfile)
 admin.site.register(models.ProfileFeedItem)
 admin.site.register(models.Job)
 admin.site.register(models.Result)
+
+# Django admin sections represent different apps from the project
+# Auth token app is automatically added as part of the DRF
+# Authentication and authorization is part of django
