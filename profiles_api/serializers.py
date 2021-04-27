@@ -15,6 +15,10 @@ class JobSerializer(serializers.ModelSerializer):
 
 class ResultSerializer(serializers.ModelSerializer):
     """Serializes Result object"""
+    
+    class Meta:
+        model = models.Result
+        fields = '__all__'
 
 
 class HelloSerializer(serializers.Serializer):

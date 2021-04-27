@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from rest_framework.response import Response
+from rest_framework.response import Response # Standard Response object
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
@@ -64,6 +64,7 @@ class ResultView(APIView):
     """
     Implements get and post for Job model
     """
+    permission_classes = (IsAuthenticated,)
 
 
 # Hello World API View example
@@ -77,6 +78,9 @@ class HelloApiView(APIView):
     # Configures APIView to have serializer class
     serializers_class = serializers.HelloSerializer
 
+    # Self is required for all class Functions
+    # Request object is passed in by rest_framework
+    # Format adds format suffix to the end of the endpoint URL
     def get(self, request, format=None):
         """Returns a list of APIView features"""
         an_apiview = [
@@ -86,6 +90,8 @@ class HelloApiView(APIView):
             'Is mapped manually to URLs'
         ]
 
+        # Converts the Response object to JSON
+        # Needs to be either a list or a dictionary
         return Response({'message':'Hello!', 'an_apiview': an_apiview})
 
     def post(self, request):

@@ -10,7 +10,7 @@ from django.core.validators import MaxValueValidator
 
 class Job(models.Model):
     """
-    This is the model for the job data structure that is sent to the Backend
+    This is the model for the Job data structure that is sent to the Backend
     """
     experiment = models.TextField()
     access_token = models.CharField(max_length=255)
@@ -25,10 +25,27 @@ class Job(models.Model):
     is_fetched = models.BooleanField(default=False)
 
 
+class Data(models.Model):
+    """
+    This is the model for the experimental data that is fit in Result model
+    """
+    data = models.CharField(max_length=255)
+
+
 class Result(models.Model):
     """
-    This is the model for the result data structure that is sent to the Backend
+    This is the model for the Result data structure that is sent from the BE
     """
+    job = models.ForeignKey(
+        Job,
+        on_delete=models.SET_NULL,
+        null = True,
+        )
+    results = models.ForeignKey(
+        Data,
+        on_delete=models.SET_NULL,
+        null = True,
+        )
 
 
 # User Manager class tells Django how to work with the customized
