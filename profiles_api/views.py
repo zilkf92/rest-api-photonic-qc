@@ -18,6 +18,7 @@ class JobView(APIView):
     Implements get and post for Job model
     """
     permission_classes = (IsAuthenticated,)
+    serializers_class = serializers.JobSerializer
 
     def get(self, request, pk=None):
         if pk is not None:
@@ -32,7 +33,7 @@ class JobView(APIView):
                 if models.Job.objects.filter(pk=pk, user=request.user).exists():
                     job = models.Job.objects.get(pk=pk, user=request.user)
             if job is not None:
-                serializer = serializers.JobSerializer(job)
+                serializer = self.serializers(job)
                 return Response(serializer.data)
             else:
                 return Response('Job does not exist.')
@@ -50,7 +51,7 @@ class JobView(APIView):
                         )
                 else:
                     jobs = models.Job.objects.filter(user=request.user)
-            serializer = serializers.JobSerializer(jobs, many=True)
+            serializer = self.serializers(jobs, many=True)
             return Response(serializer.data)
 
     def post(self, request):
@@ -76,6 +77,7 @@ class HelloApiView(APIView):
     """
 
     # Configures APIView to have serializer class
+    # Serializer tells APIView what data to expect for requests to API
     serializers_class = serializers.HelloSerializer
 
     # Self is required for all class Functions
@@ -96,6 +98,7 @@ class HelloApiView(APIView):
 
     def post(self, request):
         """Create a hello message with our name"""
+        # data needs to get passed as request.data when a post request ist made
         serializer = self.serializers_class(data=request.data)
 
         # Validate serializer
@@ -105,10 +108,14 @@ class HelloApiView(APIView):
             return Response({'message': message})
         else:
             return Response(
+                # Give dictionary of all errors based on the validation rules
                 serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+    # HTTP PUT is typically send to specific URL primary key (pk)
+    # pk=None as default in case pk should not be supported with a request
+    # Commonly PUT is applied to URL with the ID of the object
     def put(self, request, pk=None):
         """Handle updating an object"""
         return Response({'method': 'PUT'})

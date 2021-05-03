@@ -25,24 +25,12 @@ class Job(models.Model):
     is_fetched = models.BooleanField(default=False)
 
 
-class Data(models.Model):
-    """
-    This is the model for the experimental data that is fit in Result model
-    """
-    data = models.CharField(max_length=255)
-
-
 class Result(models.Model):
     """
     This is the model for the Result data structure that is sent from the BE
     """
-    job = models.ForeignKey(
+    job = models.OneToOneField(
         Job,
-        on_delete=models.SET_NULL,
-        null = True,
-        )
-    results = models.ForeignKey(
-        Data,
         on_delete=models.SET_NULL,
         null = True,
         )
