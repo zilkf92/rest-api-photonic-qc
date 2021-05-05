@@ -33,7 +33,7 @@ class JobView(APIView):
                 if models.Job.objects.filter(pk=pk, user=request.user).exists():
                     job = models.Job.objects.get(pk=pk, user=request.user)
             if job is not None:
-                serializer = self.serializers(job)
+                serializer = self.serializers_class(job)
                 return Response(serializer.data)
             else:
                 return Response('Job does not exist.')
@@ -51,11 +51,11 @@ class JobView(APIView):
                         )
                 else:
                     jobs = models.Job.objects.filter(user=request.user)
-            serializer = self.serializers(jobs, many=True)
+            serializer = self.serializers_class(jobs, many=True)
             return Response(serializer.data)
 
     def post(self, request):
-        serializer = serializers.JobSerializer(data=request.data)
+        serializer = self.serializers_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         job = serializer.save(user=request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
