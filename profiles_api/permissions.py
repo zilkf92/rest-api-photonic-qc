@@ -30,13 +30,13 @@ class IsOwnerOrAdmin(permissions.BasePermission):
         return obj.id == request.user.id
 
 
-class AdminViewList(permissions.BasePermission):
+class IsAdminOrReadOnly(permissions.BasePermission):
     """Allows Admin to see RequestData"""
 
     def has_permission(self, request, view):
 
-        if view.action == "list":
-            return request.user.is_superuser
+        if request.method == 'POST':
+            return request.user.is_staff
         else:
             return True
 

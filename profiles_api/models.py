@@ -13,14 +13,14 @@ class Job(models.Model):
     This is the model for the Job data structure that is sent to the Backend
     """
     experiment = models.TextField()
-    access_token = models.CharField(max_length=255)
+    access_token = models.CharField(max_length=255) # one time token
     shots = models.PositiveIntegerField(validators=[MaxValueValidator(200),])
     no_qubits = models.PositiveIntegerField(validators=[MaxValueValidator(6),])
     date = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
-        null = True,
+        null=True,
         )
     is_fetched = models.BooleanField(default=False)
 
@@ -29,6 +29,11 @@ class Result(models.Model):
     """
     This is the model for the Result data structure that is sent from the BE
     """
+    job = models.ForeignKey(
+        Job,
+        on_delete=models.CASCADE,
+        null=True,
+    )
     results = models.TextField()
     date = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(
@@ -36,7 +41,6 @@ class Result(models.Model):
         on_delete=models.SET_NULL,
         null = True,
         )
-    is_fetched = models.BooleanField(default=False)
 
 
 # User Manager class tells Django how to work with the customized

@@ -39,6 +39,7 @@ if ALLOWED_HOSTS_ENV:
     ALLOWED_HOSTS.extend(ALLOWED_HOSTS_ENV.split(', '))
 
 # Application definition
+# This is a list of all the apps needed for this project
 
 INSTALLED_APPS = [
     'django.contrib.admin',

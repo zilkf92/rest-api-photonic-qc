@@ -55,8 +55,11 @@ class JobView(APIView):
             return Response(serializer.data)
 
     def post(self, request):
+        # makes job model
         serializer = self.serializers_class(data=request.data)
+        # validates data against model
         serializer.is_valid(raise_exception=True)
+        # save as Job model with user = request.user
         job = serializer.save(user=request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -65,7 +68,7 @@ class ResultView(APIView):
     """
     Implements get and post for Result model
     """
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, permissions.IsAdminOrReadOnly,)
     serializers_class = serializers.ResultSerializer
 
     def get(self, request, pk=None):
@@ -74,11 +77,12 @@ class ResultView(APIView):
             if request.user.is_staff: # if staff user
                 if models.Result.objects.filter(pk=pk).exists():
                     result = models.Result.objects.get(pk=pk)
-                    if request.data.get('fetch'):
-                        result.is_fetched = True
-                        result.save() # here else statements are missing
+                    # here else statements are missing
             else: # if regular user
-                if models.Result.objects.filter(pk=pk, user=request.user).exists():
+                if models.Result.objects.filter(
+                        pk=pk,
+                        user=request.user
+                    ).exists():
                     result = models.Result.objects.get(pk=pk, user=request.user)
                     # else statement missing
             if result is not None:
@@ -88,29 +92,18 @@ class ResultView(APIView):
                 return Response('Result does not exist.')
         else: # if primary key is not specified
             if request.user.is_staff:
-                if request.data.get('filtered'): # for now
-                    results = models.Result.objects.filter(is_fetched=False)
-                else:
-                    results = models.Result.objects.all()
+                results = models.Result.objects.all()
             else:
-                if request.data.get('filtered'):
-                    results = models.Result.objects.filter(
-                        user=request.user,
-                        is_fetched=False
-                        )
-                else:
-                    results = models.Result.objects.filter(user=request.user)
+                results = models.Result.objects.filter(user=request.user)
             serializer = self.serializers_class(results, many=True)
             return Response(serializer.data)
 
     def post(self, request):
-        if request.user.is_staff:
             serializer = self.serializers_class(data=request.data)
             serializer.is_valid(raise_exception=True)
-            result = serializer.save(user=request.user)
+            user = models.UserProfile.objects.get(name=request.data.get('user'))
+            result = serializer.save(user=user)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response('Only staff user can write results.')
 
 
 # Hello World API View example

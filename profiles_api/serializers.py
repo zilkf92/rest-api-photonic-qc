@@ -6,6 +6,7 @@ from profiles_api import models
 class JobSerializer(serializers.ModelSerializer):
     """Serializes Job object"""
     # Overwrites standard function of ModelSerializer
+    # take only name from user.name for ForeignKey
     user = serializers.ReadOnlyField(source='user.name')
 
     class Meta:
@@ -15,6 +16,7 @@ class JobSerializer(serializers.ModelSerializer):
 
 class ResultSerializer(serializers.ModelSerializer):
     """Serializes Result object"""
+    user = serializers.ReadOnlyField(source='user.name')
 
     class Meta:
         model = models.Result
