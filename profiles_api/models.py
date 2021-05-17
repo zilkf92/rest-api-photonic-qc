@@ -29,11 +29,14 @@ class Result(models.Model):
     """
     This is the model for the Result data structure that is sent from the BE
     """
-    job = models.OneToOneField(
-        Job,
+    results = models.TextField()
+    date = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null = True,
         )
+    is_fetched = models.BooleanField(default=False)
 
 
 # User Manager class tells Django how to work with the customized
