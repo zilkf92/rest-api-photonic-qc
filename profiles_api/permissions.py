@@ -22,7 +22,7 @@ class UpdateOwnProfile(permissions.BasePermission):
 class IsOwnerOrAdmin(permissions.BasePermission):
     """Allows Users to view only their respective Request Data"""
 
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(self, request, obj):
 
         if request.user.is_superuser == True:
             return True

@@ -7,7 +7,8 @@ class JobSerializer(serializers.ModelSerializer):
     """Serializes Job object"""
     # Overwrites standard function of ModelSerializer
     # take only name from user.name for ForeignKey
-    user = serializers.ReadOnlyField(source='user.name')
+    # make human readable user id
+    user = serializers.ReadOnlyField(source='user.email')
 
     class Meta:
         model = models.Job
@@ -16,7 +17,7 @@ class JobSerializer(serializers.ModelSerializer):
 
 class ResultSerializer(serializers.ModelSerializer):
     """Serializes Result object"""
-    user = serializers.ReadOnlyField(source='user.name')
+    user = serializers.ReadOnlyField(source='user.email')
 
     class Meta:
         model = models.Result

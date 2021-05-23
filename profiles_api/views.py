@@ -101,8 +101,8 @@ class ResultView(APIView):
     def post(self, request):
             serializer = self.serializers_class(data=request.data)
             serializer.is_valid(raise_exception=True)
-            user = models.UserProfile.objects.get(name=request.data.get('user'))
-            result = serializer.save(user=user)
+            job = models.Job.objects.get(id=request.data.get('job'))
+            result = serializer.save(user=job.user)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
 
