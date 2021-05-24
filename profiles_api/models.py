@@ -43,6 +43,13 @@ class Result(models.Model):
         )
 
 
+class SingleQubitGate(models.Model):
+    """
+    """
+    name = models.TextField() # X, Y, Z, H
+    qubits = models.TextField() # list of 0-7
+    params = models.TextField() # list of params
+
 # User Manager class tells Django how to work with the customized
 # user model in CLI. By default when a user is created it expects
 # a username and a password field but the username field has been
