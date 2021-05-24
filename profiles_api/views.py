@@ -1,3 +1,4 @@
+from django.db.models.query import QuerySet
 from rest_framework.views import APIView
 from rest_framework.response import Response # Standard Response object
 from rest_framework import status
@@ -20,21 +21,55 @@ class JobView(APIView):
     permission_classes = (IsAuthenticated,)
     serializers_class = serializers.JobSerializer
 
+    def create_responselist(self, jobs):
+        responselist = []
+        if type(jobs) is QuerySet:
+            for job in jobs:
+                singlequbitgates = models.SingleQubitGate.objects.filter(job=job.id)
+                serializer = serializers.SingleQubitGateSerializer(singlequbitgates, many=True)
+                response_dict = {
+                    "id": job.id,
+                    "experiment": serializer.data,
+                    "access_token": job.access_token,
+                    "shots": job.shots,
+                    "no_qubits": job.no_qubits,
+                    "date": job.date,
+                    "user": str(job.user),
+                    "is_fetched": job.is_fetched,
+                }
+                responselist.append(response_dict)
+            return responselist
+        else:
+            singlequbitgates = models.SingleQubitGate.objects.filter(job=jobs.id)
+            serializer = serializers.SingleQubitGateSerializer(singlequbitgates, many=True)
+            response_dict = {
+                "id": jobs.id,
+                "experiment": serializer.data,
+                "access_token": jobs.access_token,
+                "shots": jobs.shots,
+                "no_qubits": jobs.no_qubits,
+                "date": jobs.date,
+                "user": str(jobs.user),
+                "is_fetched": jobs.is_fetched,
+            }
+            return response_dict
+
     def get(self, request, pk=None):
         if pk is not None:
             job = None
             if request.user.is_staff:
                 if models.Job.objects.filter(pk=pk).exists():
                     job = models.Job.objects.get(pk=pk)
-                    if request.data.get('fetch'):
+                    # if get request contains field "fetch"
+                    if request.data.get('fetch'): 
                         job.is_fetched = True
                         job.save()
             else:
                 if models.Job.objects.filter(pk=pk, user=request.user).exists():
                     job = models.Job.objects.get(pk=pk, user=request.user)
+                    # Here are multiple Responses missing
             if job is not None:
-                serializer = self.serializers_class(job)
-                return Response(serializer.data)
+                return Response(self.create_responselist(job))
             else:
                 return Response('Job does not exist.')
         else:
@@ -51,8 +86,7 @@ class JobView(APIView):
                         )
                 else:
                     jobs = models.Job.objects.filter(user=request.user)
-            serializer = self.serializers_class(jobs, many=True)
-            return Response(serializer.data)
+            return Response(self.create_responselist(jobs))
 
     def post(self, request):
         if request.data.get("experiment"):
@@ -70,7 +104,9 @@ class JobView(APIView):
             # save as Job model with user = request.user
             job = job_serializer.save(user=request.user)
             sqg_serializer.save(job=job)
-            return Response(job_serializer.data, status=status.HTTP_200_OK)
+            return Response(self.create_responselist(job), 
+                status=status.HTTP_200_OK
+            )
         else:
             return Response("Error message: experiment field is required")
 
