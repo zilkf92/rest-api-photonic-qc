@@ -12,7 +12,6 @@ class Job(models.Model):
     """
     This is the model for the Job data structure that is sent to the Backend
     """
-    experiment = models.TextField()
     access_token = models.CharField(max_length=255) # one time token
     shots = models.PositiveIntegerField(validators=[MaxValueValidator(200),])
     no_qubits = models.PositiveIntegerField(validators=[MaxValueValidator(6),])
@@ -45,10 +44,17 @@ class Result(models.Model):
 
 class SingleQubitGate(models.Model):
     """
+    example use {{"name": "X", "qubits": "[0]", "params": }, {"name": "measure", "qubits": "[0]", "params": "[5]"}}
     """
-    name = models.TextField() # X, Y, Z, H
-    qubits = models.TextField() # list of 0-7
-    params = models.TextField() # list of params
+    name = models.TextField() # X, Y, Z, H, measure, reset
+    qubits = models.PositiveIntegerField(validators=[MaxValueValidator(7),]) # integer 0-7
+    params = models.TextField(null=True) # list of params
+    job = models.ForeignKey(
+        Job,
+        on_delete=models.CASCADE,
+        null=True
+    )
+
 
 # User Manager class tells Django how to work with the customized
 # user model in CLI. By default when a user is created it expects

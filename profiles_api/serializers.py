@@ -8,6 +8,8 @@ class JobSerializer(serializers.ModelSerializer):
     # Overwrites standard function of ModelSerializer
     # take only name from user.name for ForeignKey
     # make human readable user id
+    # Here we use predefined ModelSerializer, and overwrite
+    # user field of Job model
     user = serializers.ReadOnlyField(source='user.email')
 
     class Meta:
@@ -23,6 +25,22 @@ class ResultSerializer(serializers.ModelSerializer):
         model = models.Result
         fields = '__all__'
 
+
+class SingleQubitGateSerializer(serializers.ModelSerializer):
+    """ """
+    job = serializers.ReadOnlyField(source='job.id')
+    # define choice fields to validate gate name input
+    choices = ["X", "Y", "Z", "H", "measure", "reset"]
+    name = serializers.ChoiceField(choices)
+
+    class Meta:
+        model = models.SingleQubitGate
+        # when field is excluded from serializer, serializer ignores
+        # the respective field
+        # when field is however referred to as null=True in models
+        # field can be empty or missing, but serializer checks the field
+        fields = '__all__'
+    
 
 class HelloSerializer(serializers.Serializer):
     """Serializers a name field for testing our APIView"""

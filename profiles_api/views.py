@@ -55,13 +55,24 @@ class JobView(APIView):
             return Response(serializer.data)
 
     def post(self, request):
-        # makes job model
-        serializer = self.serializers_class(data=request.data)
-        # validates data against model
-        serializer.is_valid(raise_exception=True)
-        # save as Job model with user = request.user
-        job = serializer.save(user=request.user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if request.data.get("experiment"):
+            # here we need now two serializers as we work with 2 models
+            # SingleQubitGate and Job
+            sqg_serializer = serializers.SingleQubitGateSerializer(
+                data=request.data.get("experiment"), 
+                many=True
+            )
+            # makes job model
+            job_serializer = self.serializers_class(data=request.data)
+            # validates data against model
+            job_serializer.is_valid(raise_exception=True)
+            sqg_serializer.is_valid(raise_exception=True)
+            # save as Job model with user = request.user
+            job = job_serializer.save(user=request.user)
+            sqg_serializer.save(job=job)
+            return Response(job_serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response("Error message: experiment field is required")
 
 
 class ResultView(APIView):
