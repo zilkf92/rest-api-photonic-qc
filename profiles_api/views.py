@@ -108,6 +108,7 @@ class JobView(APIView):
                 status=status.HTTP_200_OK
             )
         else:
+            # more detailed error message required
             return Response("Error message: experiment field is required")
 
 
