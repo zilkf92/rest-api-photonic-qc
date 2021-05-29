@@ -49,7 +49,10 @@ class SingleQubitGate(models.Model):
     """
     name = models.TextField() # X, Y, Z, H, measure, reset
     qubits = models.PositiveIntegerField(validators=[MaxValueValidator(7),]) # integer 0-7
-    params = models.TextField(null=True) # list of params
+    params = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        null=True)
     job = models.ForeignKey(
         Job,
         on_delete=models.CASCADE,
