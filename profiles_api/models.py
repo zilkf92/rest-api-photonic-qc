@@ -44,11 +44,10 @@ class Result(models.Model):
 
 class SingleQubitGate(models.Model):
     """
-    example use {{"name": "X", "qubits": "[0]", "params": }, {"name": "measure", "qubits": "[0]", "params": "[5]"}}
     This model will involved as a list of dictionaries in the "experiment" field in Job model
     """
-    name = models.TextField() # X, Y, Z, H, measure, reset
-    qubits = models.PositiveIntegerField(validators=[MaxValueValidator(7),]) # integer 0-7
+    name = models.TextField()
+    qubits = models.PositiveIntegerField(validators=[MaxValueValidator(7),])
     params = models.DecimalField(
         max_digits=5, 
         decimal_places=2, 
