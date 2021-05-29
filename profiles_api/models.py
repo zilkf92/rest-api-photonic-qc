@@ -44,12 +44,23 @@ class Result(models.Model):
 
 class SingleQubitGate(models.Model):
     """
+<<<<<<< HEAD
     example use {{"name": "HWP or QWP", "qubits": "[0]", "params": }, {"name": "measure", "qubits": "[0]", "params": "[5]"}}
     This model will involved as a list of dictionaries in the "experiment" field in Job model
     """
     name = models.TextField() # HWP, QWP, measure, reset
     qubits = models.PositiveIntegerField(validators=[MaxValueValidator(7),]) # integer 0-7
     params = models.TextField(null=True) # list of params, theta etc
+=======
+    This model will involved as a list of dictionaries in the "experiment" field in Job model
+    """
+    name = models.TextField()
+    qubits = models.PositiveIntegerField(validators=[MaxValueValidator(7),])
+    params = models.DecimalField(
+        max_digits=5, 
+        decimal_places=2, 
+        null=True)
+>>>>>>> fbb222607b23838f1b09e4b53a481d2622ac4bc6
     job = models.ForeignKey(
         Job,
         on_delete=models.CASCADE,

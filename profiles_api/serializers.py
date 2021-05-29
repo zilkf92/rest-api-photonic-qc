@@ -30,7 +30,7 @@ class SingleQubitGateSerializer(serializers.ModelSerializer):
     """ """
     job = serializers.ReadOnlyField(source='job.id')
     # define choice fields to validate gate name input
-    choices = ["X", "Y", "Z", "H", "measure", "reset"]
+    choices = ["QWP", "HWP", "measure", "reset"]
     name = serializers.ChoiceField(choices)
 
     class Meta:
