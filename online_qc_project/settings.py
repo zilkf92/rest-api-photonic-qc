@@ -37,9 +37,9 @@ ALLOWED_HOSTS = [
     'http://ec2-3-21-129-172.us-east-2.compute.amazonaws.com', 
     '127.0.0.1'
 ]
-ALLOWED_HOSTS_ENV = os.environ.get('ALLOWED_HOSTS')
-if ALLOWED_HOSTS_ENV:
-    ALLOWED_HOSTS.extend(ALLOWED_HOSTS_ENV.split(', '))
+# ALLOWED_HOSTS_ENV = os.environ.get('ALLOWED_HOSTS')
+# if ALLOWED_HOSTS_ENV:
+#     ALLOWED_HOSTS.extend(ALLOWED_HOSTS_ENV.split(', '))
 
 # Application definition
 # This is a list of all the apps needed for this project
