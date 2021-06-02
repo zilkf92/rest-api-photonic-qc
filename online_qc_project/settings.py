@@ -34,7 +34,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'secretkey')
 DEBUG = bool(int(os.environ.get('DEBUG', 1)))
 
 ALLOWED_HOSTS = [
-    'http://ec2-3-21-129-172.us-east-2.compute.amazonaws.com', 
+    'ec2-3-21-129-172.us-east-2.compute.amazonaws.com', 
     '127.0.0.1'
 ]
 # ALLOWED_HOSTS_ENV = os.environ.get('ALLOWED_HOSTS')
