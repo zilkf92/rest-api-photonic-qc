@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
                 ('name', models.TextField()),
                 ('qubits', models.PositiveIntegerField(validators=[django.core.validators.MaxValueValidator(7)])),
                 ('params', models.DecimalField(decimal_places=2, max_digits=5, null=True)),
-                ('job', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='profiles_api.Job')),
+                ('job', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='cdl_rest_api.Job')),
             ],
         ),
         migrations.CreateModel(
@@ -61,7 +61,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('results', models.TextField()),
                 ('date', models.DateTimeField(auto_now_add=True)),
-                ('job', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='profiles_api.Job')),
+                ('job', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='cdl_rest_api.Job')),
                 ('user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
             ],
         ),

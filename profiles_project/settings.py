@@ -136,7 +136,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # Configure the default authentication model
-AUTH_USER_MODEL = 'profiles_api.UserProfile'
+AUTH_USER_MODEL = 'cdl_rest_api.UserProfile'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

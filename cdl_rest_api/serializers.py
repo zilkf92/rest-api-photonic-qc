@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from profiles_api import models
+from cdl_rest_api import models
 
 
 class JobSerializer(serializers.ModelSerializer):

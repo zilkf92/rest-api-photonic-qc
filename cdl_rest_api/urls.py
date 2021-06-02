@@ -2,7 +2,7 @@ from django.urls import path, include
 
 from rest_framework.routers import DefaultRouter
 
-from profiles_api import views
+from cdl_rest_api import views
 
 # Router is a class provided by Django rest_framework to generate the
 # different routes that are available for the view set
