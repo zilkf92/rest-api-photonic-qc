@@ -6,34 +6,33 @@
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure("2") do |config|
- # The most common configuration options are documented and commented below.
- # For a complete reference, please see the online documentation at
- # https://docs.vagrantup.com.
-
- # Every Vagrant development environment requires a box. You can search for
- # boxes at https://vagrantcloud.com/search.
- config.vm.box = "ubuntu/bionic64" #Operating System
- config.vm.box_version = "~> 20200304.0.0"
-
- # Provider settings
- # config.vm.provider "virtualbox" do |vb|
- #   vb.memory = 2048
- #   vb.cpus = 4
-
- # Network settings - How host computer sees Vagrant box
- config.vm.network "forwarded_port", guest: 8000, host: 8000
-
- # Commands run with vagrant up
- config.vm.provision "shell", inline: <<-SHELL
-   systemctl disable apt-daily.service
-   systemctl disable apt-daily.timer
-
-   sudo apt-get update
-   sudo apt-get install -y python3-venv zip
-   touch /home/vagrant/.bash_aliases
-   if ! grep -q PYTHON_ALIAS_ADDED /home/vagrant/.bash_aliases; then
-     echo "# PYTHON_ALIAS_ADDED" >> /home/vagrant/.bash_aliases
-     echo "alias python='python3'" >> /home/vagrant/.bash_aliases
-   fi
- SHELL
-end
+  # The most common configuration options are documented and commented below.
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
+ 
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://vagrantcloud.com/search.
+  config.vm.box = "ubuntu/bionic64"
+  # Pin to specific version in case of changes in base image
+  config.vm.box_version = "~> 20200304.0.0"
+  # Maps port on local machine to port on server
+  config.vm.network "forwarded_port", guest: 8000, host: 8000
+  # Provision block to run scripts
+  config.vm.provision "shell", inline: <<-SHELL
+    # Disable auto update which conflicts with auto update below (line 27)
+    # when first ran on Ubuntu
+    systemctl disable apt-daily.service
+    systemctl disable apt-daily.timer
+    # Update line to update local repository with all available packages
+    sudo apt-get update
+    # Two packages python3-venv and zip
+    sudo apt-get install -y python3-venv zip
+    # Bash aliases file which sets Python3 to the default Python version
+    # for the vagrant user
+    touch /home/vagrant/.bash_aliases
+    if ! grep -q PYTHON_ALIAS_ADDED /home/vagrant/.bash_aliases; then
+      echo "# PYTHON_ALIAS_ADDED" >> /home/vagrant/.bash_aliases
+      echo "alias python='python3'" >> /home/vagrant/.bash_aliases
+    fi
+  SHELL
+ end
