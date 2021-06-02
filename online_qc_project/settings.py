@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'cdl_rest_api',
-    'django_rename_app',
 
 ]
 
