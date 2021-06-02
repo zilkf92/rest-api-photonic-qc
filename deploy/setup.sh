@@ -3,7 +3,7 @@
 set -e
 
 # TODO: Set to URL of git repo.
-PROJECT_GIT_URL='https://github.com/zilkf92/profiles-rest-api.git'
+PROJECT_GIT_URL='https://github.com/zilkf92/rest-api-photonic-qc.git'
 # Location of source code on server
 PROJECT_BASE_PATH='/usr/local/apps/profiles-rest-api'
 
