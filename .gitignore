@@ -1,6 +1,9 @@
 # Created by https://www.gitignore.io/api/python,vagrant
 # Edit at https://www.gitignore.io/?templates=python,vagrant
 
+### Project REST API Photonic QC ###
+hello_world.py
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
