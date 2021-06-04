@@ -40,13 +40,13 @@ class SingleQubitGateSerializer(serializers.ModelSerializer):
         # when field is however referred to as null=True in models
         # field can be empty or missing, but serializer checks the field
         fields = '__all__'
-    
 
-class HelloSerializer(serializers.Serializer):
-    """Serializers a name field for testing our APIView"""
 
-    # Defines expected input for post, put or patch and validates input
-    name = serializers.CharField(max_length=10)
+# class HelloSerializer(serializers.Serializer):
+#     """Serializers a name field for testing our APIView"""
+#
+#     # Defines expected input for post, put or patch and validates input
+#     name = serializers.CharField(max_length=10)
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

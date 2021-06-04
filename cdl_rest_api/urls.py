@@ -7,7 +7,7 @@ from cdl_rest_api import views
 # Router is a class provided by Django rest_framework to generate the
 # different routes that are available for the view set
 router = DefaultRouter()
-router.register('hello-viewset', views.HelloViewSet, base_name='hello-viewset')
+# router.register('hello-viewset', views.HelloViewSet, base_name='hello-viewset')
 # base_name only necessary for view set without queryset
 # or to overwrite the name of the queryset
 router.register('profile', views.UserProfileViewSet)
@@ -17,7 +17,7 @@ router.register('feed', views.UserProfileFeedViewSet)
 urlpatterns = [
     # as_view is the standard function to convert APIView class
     # to be rendered by url
-    path('hello-view/', views.HelloApiView.as_view()),
+    # path('hello-view/', views.HelloApiView.as_view()),
     path('login/', views.UserLoginApiView.as_view()),
     path('job/', views.JobView.as_view()),
     path('job/<int:pk>/', views.JobView.as_view()),

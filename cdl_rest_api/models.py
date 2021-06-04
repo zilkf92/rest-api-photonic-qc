@@ -44,14 +44,18 @@ class Result(models.Model):
 
 class SingleQubitGate(models.Model):
     """
-    example use {{"name": "HWP or QWP", "qubits": "[0]", "params": 22.5}, {"name": "measure", "qubits": "[0]", "params": 5}}
-    This model is involved as a list of dictionaries in the "experiment" field in Job model
+    This model represents the operation on a single qubit and is involved as
+    a list of dictionaries in the "experiment" field in Job model.
+    Example use {
+    {"name": "HWP or QWP", "qubits": "[0]", "params": 22.5},
+    {"name": "measure", "qubits": "[0]", "params": 5}
+    }
     """
     name = models.TextField()
     qubits = models.PositiveIntegerField(validators=[MaxValueValidator(7),])
     params = models.DecimalField(
-        max_digits=5, 
-        decimal_places=2, 
+        max_digits=5,
+        decimal_places=2,
         null=True)
     job = models.ForeignKey(
         Job,

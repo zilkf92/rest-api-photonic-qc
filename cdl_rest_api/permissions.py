@@ -7,7 +7,7 @@ class UpdateOwnProfile(permissions.BasePermission):
     # Has_object_permission gets called every time a request is made
     # to the API that we assign our permission to
     def has_object_permission(self, request, view, obj):
-        """Check user is trying to edit their own profile"""
+        """Check if user is trying to edit their own profile"""
         # Allow users to view other users profiles but only able
         # to make changes to their own profile
         # Checks if the request is in the safe methods,
