@@ -7,7 +7,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework import filters
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from cdl_rest_api import serializers
 from cdl_rest_api import models
@@ -270,7 +270,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     # Determine objects in the database which are managed in this view
     queryset = models.UserProfile.objects.all()
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (permissions.UpdateOwnProfile, IsAuthenticated, )
+    permission_classes = (AllowAny,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name', 'email',)
 
