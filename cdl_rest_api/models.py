@@ -56,7 +56,8 @@ class SingleQubitGate(models.Model):
     params = models.DecimalField(
         max_digits=5,
         decimal_places=2,
-        null=True)
+        null=True
+    )
     job = models.ForeignKey(
         Job,
         on_delete=models.CASCADE,

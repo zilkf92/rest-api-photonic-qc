@@ -25,8 +25,13 @@ class JobView(APIView):
         responselist = []
         if type(jobs) is QuerySet:
             for job in jobs:
-                singlequbitgates = models.SingleQubitGate.objects.filter(job=job.id)
-                serializer = serializers.SingleQubitGateSerializer(singlequbitgates, many=True)
+                singlequbitgates = models.SingleQubitGate.objects.filter(
+                    job=job.id
+                )
+                serializer = serializers.SingleQubitGateSerializer(
+                    singlequbitgates,
+                    many=True
+                )
                 response_dict = {
                     "id": job.id,
                     "experiment": serializer.data,
@@ -40,8 +45,13 @@ class JobView(APIView):
                 responselist.append(response_dict)
             return responselist
         else:
-            singlequbitgates = models.SingleQubitGate.objects.filter(job=jobs.id)
-            serializer = serializers.SingleQubitGateSerializer(singlequbitgates, many=True)
+            singlequbitgates = models.SingleQubitGate.objects.filter(
+                job=jobs.id
+            )
+            serializer = serializers.SingleQubitGateSerializer(
+                singlequbitgates,
+                many=True
+            )
             response_dict = {
                 "id": jobs.id,
                 "experiment": serializer.data,
@@ -154,6 +164,42 @@ class ResultView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+# ModelViewSet specifically designed for managing models through API
+class UserProfileViewSet(viewsets.ModelViewSet):
+    """Handle creating and updating profiles"""
+    serializer_class = serializers.UserProfileSerializer
+    # Determine objects in the database which are managed in this view
+    queryset = models.UserProfile.objects.all()
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (AllowAny,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('name', 'email',)
+
+
+class UserLoginApiView(ObtainAuthToken):
+    """Handle creating user authentication tokens"""
+    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+
+
+class UserProfileFeedViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading and updating profile feed items"""
+    authentication_classes = (TokenAuthentication,)
+    serializer_class = serializers.ProfileFeedItemSerializer
+    queryset = models.ProfileFeedItem.objects.all()
+    permission_classes = (
+        # Ensure that users can only update statuses where the user
+        # profile is assigned to their user
+        permissions.UpdateOwnStatus,
+        # Users must be authenticated to perform any request that is
+        # not a read request
+        IsAuthenticated,
+    )
+
+    def perform_create(self, serializer):
+        """Sets the user profile to the logged in user"""
+        serializer.save(user_profile=self.request.user)
+
+
 # Hello World API View example
 # class HelloApiView(APIView):
 #     """Test API View
@@ -262,38 +308,3 @@ class ResultView(APIView):
 #     def destroy(self, request, pk=None):
 #         """Handle removing an object"""
 #         return Response({'http_method': 'DELETE'})
-
-# ModelViewSet specifically designed for managing models through API
-class UserProfileViewSet(viewsets.ModelViewSet):
-    """Handle creating and updating profiles"""
-    serializer_class = serializers.UserProfileSerializer
-    # Determine objects in the database which are managed in this view
-    queryset = models.UserProfile.objects.all()
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (AllowAny,)
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name', 'email',)
-
-
-class UserLoginApiView(ObtainAuthToken):
-    """Handle creating user authentication tokens"""
-    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
-
-
-class UserProfileFeedViewSet(viewsets.ModelViewSet):
-    """Handles creating, reading and updating profile feed items"""
-    authentication_classes = (TokenAuthentication,)
-    serializer_class = serializers.ProfileFeedItemSerializer
-    queryset = models.ProfileFeedItem.objects.all()
-    permission_classes = (
-        # Ensure that users can only update statuses where the user
-        # profile is assigned to their user
-        permissions.UpdateOwnStatus,
-        # Users must be authenticated to perform any request that is
-        # not a read request
-        IsAuthenticated,
-    )
-
-    def perform_create(self, serializer):
-        """Sets the user profile to the logged in user"""
-        serializer.save(user_profile=self.request.user)
