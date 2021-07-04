@@ -171,7 +171,7 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     # Determine objects in the database which are managed in this view
     queryset = models.UserProfile.objects.all()
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (AllowAny,)
+    permission_classes = (permissions.UpdateOwnProfile,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name', 'email',)
 
