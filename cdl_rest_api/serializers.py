@@ -28,6 +28,7 @@ class ResultSerializer(serializers.ModelSerializer):
 
 class SingleQubitGateSerializer(serializers.ModelSerializer):
     """ """
+    # overwrite job variable with job.id
     job = serializers.ReadOnlyField(source='job.id')
     # define choice fields to validate gate name input
     choices = ["QWP", "HWP", "measure", "reset"]

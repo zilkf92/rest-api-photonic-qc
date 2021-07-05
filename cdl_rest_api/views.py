@@ -22,9 +22,15 @@ class JobView(APIView):
     serializers_class = serializers.JobSerializer
 
     def create_responselist(self, jobs):
+        """
+        Defines response dictionary for visualization of the Job model
+        and its single qubit gates.
+        """
         responselist = []
         if type(jobs) is QuerySet:
             for job in jobs:
+                # query single qubit gates for job.id from db
+                # objects.filter is built in by Django
                 singlequbitgates = models.SingleQubitGate.objects.filter(
                     job=job.id
                 )
@@ -32,6 +38,7 @@ class JobView(APIView):
                     singlequbitgates,
                     many=True
                 )
+                # define response dict manually
                 response_dict = {
                     "id": job.id,
                     "experiment": serializer.data,
@@ -45,6 +52,7 @@ class JobView(APIView):
                 responselist.append(response_dict)
             return responselist
         else:
+            # same procedure as in for loop for single job object
             singlequbitgates = models.SingleQubitGate.objects.filter(
                 job=jobs.id
             )
@@ -99,20 +107,26 @@ class JobView(APIView):
             return Response(self.create_responselist(jobs))
 
     def post(self, request):
+        # IF validates whether there is experiment field in request data
+        # Alternatively custom serializer needs to be built
         if request.data.get("experiment"):
             # here we need now two serializers as we work with 2 models
             # SingleQubitGate and Job
             sqg_serializer = serializers.SingleQubitGateSerializer(
                 data=request.data.get("experiment"),
-                many=True
+                many=True # "experiment" is a list of objects
             )
             # makes job model
             job_serializer = self.serializers_class(data=request.data)
-            # validates data against model
+            # validates data against model and ignores additional
+            # "experiment" field with respect to Job model
             job_serializer.is_valid(raise_exception=True)
             sqg_serializer.is_valid(raise_exception=True)
             # save as Job model with user = request.user
+            # job serializer validates against Job model, so user must
+            # be retrieved from logged in user who sends the request
             job = job_serializer.save(user=request.user)
+            # saves list of single qubit gates in db and assigns job
             sqg_serializer.save(job=job)
             return Response(self.create_responselist(job),
                 status=status.HTTP_200_OK

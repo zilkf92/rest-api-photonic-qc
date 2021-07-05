@@ -7,7 +7,7 @@ class UpdateOwnProfile(permissions.BasePermission):
     # Has_object_permission gets called every time a request is made
     # to the API that we assign our permission to
     # has_object_permission function defines permission class
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(self, request, obj):
         """Check if user is trying to edit their own profile"""
         # Allow users to view other users profiles but only able
         # to make changes to their own profile
@@ -21,8 +21,12 @@ class UpdateOwnProfile(permissions.BasePermission):
 
 
 class IsOwnerOrAdmin(permissions.BasePermission):
-    """Allows Users to view only their respective Request Data"""
+    """
+    Allow Users to view only their own request objects
+    but allow superuser alias admin to view all objects.
+    """
 
+    # has_object_permission refers to object permission
     def has_object_permission(self, request, obj):
 
         if request.user.is_superuser == True:
@@ -32,18 +36,27 @@ class IsOwnerOrAdmin(permissions.BasePermission):
 
 
 class IsAdminOrReadOnly(permissions.BasePermission):
-    """Allows Admin to see RequestData"""
+    """
+    Only admins alias is_staff are allowed to post or
+    put (change) data. All other methods are allowed for the
+    all users.
+    """
 
+    # has_permission refers to user permission
     def has_permission(self, request, view):
 
-        if request.method == 'POST':
+        if request.method == 'POST' or request.method == 'PUT':
             return request.user.is_staff
         else:
             return True
 
 
 class UpdateOwnStatus(permissions.BasePermission):
-    """Allow users to update their own status"""
+    """
+    Allow only object owners to create and change objects and
+    allow all other users to read data.
+    (IsOwnerOrReadOnly)
+    """
 
     def has_object_permission(self, request, view, obj):
         """Check the user is trying to update their own status"""
