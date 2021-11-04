@@ -3,33 +3,92 @@ from rest_framework import serializers
 from cdl_rest_api import models
 
 
+class clusterStateSerializer(serializers.ModelSerializer):
+    """ """
+
+    choices = ["linear", "ghz"]
+    graphState = serializers.ChoiceField(choices)
+
+    class Meta:
+        model = models.clusterState
+        fields = "__all__"
+
+
+class CircuitConfigurationItemSerializer(serializers.ModelSerializer):
+    """ """
+
+    class Meta:
+        model = models.CircuitConfigurationItem
+        fields = "__all__"
+
+
+class qubitComputingSerializer(serializers.ModelSerializer):
+    """ """
+
+    # To Do: Cluster state configurations need to be added here
+    choices = [
+        "horseshoe",
+    ]
+    # pick all CircuitConfigurationItems with ForgeinKey:
+    # "qubitComputing" = incoming id
+    data = models.CircuitConfigurationItem.objects(qubitComputing="data.id")
+    circuitConfiguration = serializers.ChoiceField(choices)
+    circuitAngles = CircuitConfigurationItemSerializer(many=True, data=data)
+
+    def create(self, validated_data):
+        """ """
+        circuitAnglesData = validated_data.pop("circuitAngles")
+        qubitComputing = models.qubitComputing.objects.create(**validated_data)
+        for circuitAngle in circuitAnglesData:
+            models.CircuitConfigurationItem.objects.create(
+                qubitComputing=qubitComputing, **circuitAngle
+            )
+        return qubitComputing
+
+
+# To Do: Serializer fertigstellen
+class ExperimentSerializer(serializers.ModelSerializer):
+    """ """
+
+    choices = ["RUNNING", "FAILED", "DONE"]
+    status = serializers.ChoiceField(choices)
+
+    class Meta:
+        model = models.Experiment
+        fields = "__all__"
+        depth = 2
+
+
 class JobSerializer(serializers.ModelSerializer):
     """Serializes Job object"""
+
     # Overwrites standard function of ModelSerializer
     # take only name from user.name for ForeignKey
     # make human readable user id
     # Here we use predefined ModelSerializer, and overwrite
     # user field of Job model
-    user = serializers.ReadOnlyField(source='user.email')
+    user = serializers.ReadOnlyField(source="user.email")
 
     class Meta:
         model = models.Job
-        fields = '__all__'
+        fields = "__all__"
 
 
 class ResultSerializer(serializers.ModelSerializer):
     """Serializes Result object"""
-    user = serializers.ReadOnlyField(source='user.email')
+
+    user = serializers.ReadOnlyField(source="user.email")
 
     class Meta:
         model = models.Result
-        fields = '__all__'
+        fields = "__all__"
 
 
 class SingleQubitGateSerializer(serializers.ModelSerializer):
     """ """
+
     # overwrite job variable with job.id
-    job = serializers.ReadOnlyField(source='job.id')
+    job = serializers.ReadOnlyField(source="job.id")
     # define choice fields to validate gate name input
     choices = ["QWP", "HWP", "measure", "reset"]
     name = serializers.ChoiceField(choices)
@@ -40,7 +99,7 @@ class SingleQubitGateSerializer(serializers.ModelSerializer):
         # the respective field
         # when field is however referred to as null=True in models
         # field can be empty or missing, but serializer checks the field
-        fields = '__all__'
+        fields = "__all__"
 
 
 # class HelloSerializer(serializers.Serializer):
@@ -57,15 +116,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
     # to point to a specific model
     class Meta:
         model = models.UserProfile
-        fields = ('id', 'email', 'name', 'password')
+        fields = ("id", "email", "name", "password")
         # Extra keyword args
         extra_kwargs = {
-            'password': {
+            "password": {
                 # Can only create new or update objects
                 # Get request will not include password field in its response
-                'write_only': True,
+                "write_only": True,
                 # Hide input while typing
-                'style': {'input_type': 'password'}
+                "style": {"input_type": "password"},
             }
         }
 
@@ -73,17 +132,17 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """Create and return a new user"""
         user = models.UserProfile.objects.create_user(
-            email=validated_data['email'],
-            name=validated_data['name'],
-            password=validated_data['password']
+            email=validated_data["email"],
+            name=validated_data["name"],
+            password=validated_data["password"],
         )
 
         return user
 
     def update(self, instance, validated_data):
         """Handle updating user account"""
-        if 'password' in validated_data:
-            password = validated_data.pop('password')
+        if "password" in validated_data:
+            password = validated_data.pop("password")
             instance.set_password(password)
 
         return super().update(instance, validated_data)
@@ -94,5 +153,5 @@ class ProfileFeedItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ProfileFeedItem
-        fields = ('id', 'user_profile', 'status_text', 'created_on')
-        extra_kwargs = {'user_profile': {'read_only': True}}
+        fields = ("id", "user_profile", "status_text", "created_on")
+        extra_kwargs = {"user_profile": {"read_only": True}}
