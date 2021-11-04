@@ -5,22 +5,148 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.models import BaseUserManager
 from django.conf import settings
-from django.core.validators import MaxValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
+
+
+class QubitMeasurementItem(models.Model):
+    """
+    This model represents the Qubit Measurement Settings according to
+    projection in complex plane
+    """
+
+    encodedQubitIndex = models.PositiveIntegerField(
+        validators=[
+            MinValueValidator(1),
+        ]
+    )
+    theta = models.DecimalField(
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(360),
+        ]
+    )
+    phi = models.DecimalField(
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(360),
+        ]
+    )
+    ComputeSettings = models.ForeignKey(
+        "ComputeSettings",
+        on_delete=models.CASCADE,
+    )
+
+
+class CircuitConfigurationItem(models.Model):
+    """
+    This model contains the name and value of the abstract circuit angles
+    """
+
+    circuitAngleName = models.CharField(max_length=255)
+    circuitAngleValue = models.DecimalField(
+        validators=[
+            MinValueValidator(0),
+            MaxValueValidator(360),
+        ]
+    )
+    qubitComputing = models.ForeignKey(
+        "qubitComputing",
+        on_delete=models.CASCADE,
+    )
+
+
+class clusterState(models.Model):
+    """ """
+
+    numberOfQubits = models.PositiveIntegerField(
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(4),
+        ]
+    )
+    graphState = models.CharField()
+
+
+class qubitComputing(models.Model):
+    """ """
+
+    circuitConfiguration = models.CharField()
+
+
+class ComputeSettings(models.Model):
+    """ """
+
+    clusterState = models.ForeignKey(
+        "clusterState",
+        on_delete=models.SET_NULL,
+    )
+    qubitComputing = models.ForeignKey(
+        "qubitComputing",
+        on_delete=models.SET_NULL,
+    )
+
+
+class ExperimentBase(models.Model):
+    """ """
+
+    experimentName = models.CharField(max_length=255)
+    projectId = models.CharField(max_length=255)
+    maxRuntime = models.PositiveIntegerField(
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(120),
+        ]
+    )
+    ComputeSettings = models.ForeignKey(
+        "ComputeSettings",
+        on_delete=models.SET_NULL,
+    )
+
+
+class Experiment(ExperimentBase):
+    """ """
+
+    experimentId = models.CharField(max_length=255)
+    status = models.CharField(max_length=255)
+
+
+class ExperimentResult(models.Model):
+    """ """
+
+    startTime = models.DateTimeField(auto_now_add=True)
+    totalCounts = models.PositiveIntegerField()
+    numberOfDetectors = models.PositiveIntegerField(
+        validators=[
+            MinValueValidator(1),
+            MaxValueValidator(8),
+        ]
+    )
+    singlePhotonRate = models.DecimalField()
+    totalTime = models.PositiveIntegerField()
 
 
 class Job(models.Model):
     """
     This is the model for the Job data structure that is sent to the Backend
     """
-    access_token = models.CharField(max_length=255) # one time token
-    shots = models.PositiveIntegerField(validators=[MaxValueValidator(200),])
-    no_qubits = models.PositiveIntegerField(validators=[MaxValueValidator(6),])
+
+    access_token = models.CharField(max_length=255)  # one time token
+    shots = models.PositiveIntegerField(
+        validators=[
+            MaxValueValidator(200),
+        ]
+    )
+    no_qubits = models.PositiveIntegerField(
+        validators=[
+            MaxValueValidator(6),
+        ]
+    )
     date = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         null=True,
-        )
+    )
     is_fetched = models.BooleanField(default=False)
 
 
@@ -28,6 +154,7 @@ class Result(models.Model):
     """
     This is the model for the Result data structure that is sent from the BE
     """
+
     job = models.ForeignKey(
         Job,
         on_delete=models.CASCADE,
@@ -38,8 +165,8 @@ class Result(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
-        null = True,
-        )
+        null=True,
+    )
 
 
 class SingleQubitGate(models.Model):
@@ -51,18 +178,15 @@ class SingleQubitGate(models.Model):
     {"name": "measure", "qubits": "[0]", "params": 5}
     }
     """
+
     name = models.TextField()
-    qubits = models.PositiveIntegerField(validators=[MaxValueValidator(7),])
-    params = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        null=True
+    qubits = models.PositiveIntegerField(
+        validators=[
+            MaxValueValidator(7),
+        ]
     )
-    job = models.ForeignKey(
-        Job,
-        on_delete=models.CASCADE,
-        null=True
-    )
+    params = models.DecimalField(max_digits=5, decimal_places=2, null=True)
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, null=True)
 
 
 # User Manager class tells Django how to work with the customized
@@ -81,7 +205,7 @@ class UserProfileManager(BaseUserManager):
         # Case when email is either empty string or null value
         # Raise exception
         if not email:
-            raise ValueError('Users must have an email address')
+            raise ValueError("Users must have an email address")
 
         email = self.normalize_email(email)
         # By default self.model is set to the model that the manager is for
@@ -111,6 +235,7 @@ class UserProfileManager(BaseUserManager):
 
 class UserProfile(AbstractBaseUser, PermissionsMixin):
     """Database model for user in the system"""
+
     # Define various fields that model should provide
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
@@ -126,9 +251,9 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
     # Overwriting the default USERNAME_FIELD which is normally user name
     # and replacing it with email field
     # When users authenticate they provide email address and pw
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = "email"
     # Adding username to additional REQUIRED_FIELDS
-    REQUIRED_FIELDS = ['name']
+    REQUIRED_FIELDS = ["name"]
 
     def get_full_name(self):
         """Retrieve full name of user"""
@@ -147,6 +272,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 
 class ProfileFeedItem(models.Model):
     """Profile status update"""
+
     # Link models to other models in Django with ForeignKey
     # Here: can never create a ProfileFeedItem for a
     # user profile that doesn't exist
@@ -155,7 +281,7 @@ class ProfileFeedItem(models.Model):
         settings.AUTH_USER_MODEL,
         # Specify what happens to ProfileFeedItem when user
         # profile is deleted
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
     status_text = models.CharField(max_length=255)
     created_on = models.DateTimeField(auto_now_add=True)
