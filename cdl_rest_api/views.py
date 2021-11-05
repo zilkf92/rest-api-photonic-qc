@@ -24,6 +24,7 @@ class ExperimentDetailView(APIView):
     def get(self, request, experiment_id):
         """ """
         experiment = None
+        experimentResult = None
         if experiment_id is not None:
             if request.user.is_staff:
                 if models.Experiment.objects.filter(
@@ -32,6 +33,12 @@ class ExperimentDetailView(APIView):
                     experiment = models.Experiment.objects.get(
                         experimentId=experiment_id
                     )
+                    if models.ExperimentResult.objects.filter(
+                        experiment=experiment
+                    ).exists():
+                        experimentResult = models.ExperimentResult.objects.get(
+                            experiment=experiment
+                        )
                 else:
                     return Response(
                         "An Experiment with the specified ID was not found.",
@@ -45,18 +52,39 @@ class ExperimentDetailView(APIView):
                     experiment = models.Experiment.objects.get(
                         experimentId=experiment_id,
                     )
+                    if models.ExperimentResult.objects.filter(
+                        experiment=experiment
+                    ).exists():
+                        experimentResult = models.ExperimentResult.objects.get(
+                            experiment=experiment
+                        )
                 else:
                     return Response(
                         "An Experiment with the specified ID was not found or does not belong to the current user.",
                         status=status.HTTP_404_NOT_FOUND,
                     )
+
         if experiment is not None:
-            return Response(
-                serializers.ExperimentSerializer(
-                    data=experiment,
+            if experimentResult is not None:
+                return Response(
+                    {
+                        experiment: serializers.ExperimentSerializer(
+                            data=experiment,
+                        ),
+                        result: serializers.ExperimentResultSerializer(
+                            data=experimentResult
+                        ),
+                    },
                     status=status.HTTP_200_OK,
                 )
-            )
+
+            else:
+                return Response(
+                    serializers.ExperimentSerializer(
+                        data=experiment,
+                    ),
+                    status=status.HTTP_200_OK,
+                )
         else:
             return Response(
                 "Unexpected error.",
