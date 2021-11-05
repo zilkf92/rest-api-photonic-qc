@@ -1,6 +1,6 @@
 from django.db.models.query import QuerySet
 from rest_framework.views import APIView
-from rest_framework.response import Response # Standard Response object
+from rest_framework.response import Response  # Standard Response object
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
@@ -18,6 +18,7 @@ class JobView(APIView):
     """
     Implements get and post for Job model
     """
+
     permission_classes = (IsAuthenticated,)
     serializers_class = serializers.JobSerializer
 
@@ -31,12 +32,9 @@ class JobView(APIView):
             for job in jobs:
                 # query single qubit gates for job.id from db
                 # objects.filter is built in by Django
-                singlequbitgates = models.SingleQubitGate.objects.filter(
-                    job=job.id
-                )
+                singlequbitgates = models.SingleQubitGate.objects.filter(job=job.id)
                 serializer = serializers.SingleQubitGateSerializer(
-                    singlequbitgates,
-                    many=True
+                    singlequbitgates, many=True
                 )
                 # define response dict manually
                 response_dict = {
@@ -53,12 +51,9 @@ class JobView(APIView):
             return responselist
         else:
             # same procedure as in for loop for single job object
-            singlequbitgates = models.SingleQubitGate.objects.filter(
-                job=jobs.id
-            )
+            singlequbitgates = models.SingleQubitGate.objects.filter(job=jobs.id)
             serializer = serializers.SingleQubitGateSerializer(
-                singlequbitgates,
-                many=True
+                singlequbitgates, many=True
             )
             response_dict = {
                 "id": jobs.id,
@@ -79,7 +74,7 @@ class JobView(APIView):
                 if models.Job.objects.filter(pk=pk).exists():
                     job = models.Job.objects.get(pk=pk)
                     # if get request contains field "fetch"
-                    if request.data.get('fetch'):
+                    if request.data.get("fetch"):
                         job.is_fetched = True
                         job.save()
             else:
@@ -89,19 +84,18 @@ class JobView(APIView):
             if job is not None:
                 return Response(self.create_responselist(job))
             else:
-                return Response('Job does not exist.')
+                return Response("Job does not exist.")
         else:
             if request.user.is_staff:
-                if request.data.get('filtered'):
+                if request.data.get("filtered"):
                     jobs = models.Job.objects.filter(is_fetched=False)
                 else:
                     jobs = models.Job.objects.all()
             else:
-                if request.data.get('filtered'):
+                if request.data.get("filtered"):
                     jobs = models.Job.objects.filter(
-                        user=request.user,
-                        is_fetched=False
-                        )
+                        user=request.user, is_fetched=False
+                    )
                 else:
                     jobs = models.Job.objects.filter(user=request.user)
             return Response(self.create_responselist(jobs))
@@ -114,7 +108,7 @@ class JobView(APIView):
             # SingleQubitGate and Job
             sqg_serializer = serializers.SingleQubitGateSerializer(
                 data=request.data.get("experiment"),
-                many=True # "experiment" is a list of objects
+                many=True,  # "experiment" is a list of objects
             )
             # makes job model
             job_serializer = self.serializers_class(data=request.data)
@@ -128,9 +122,7 @@ class JobView(APIView):
             job = job_serializer.save(user=request.user)
             # saves list of single qubit gates in db and assigns job
             sqg_serializer.save(job=job)
-            return Response(self.create_responselist(job),
-                status=status.HTTP_200_OK
-            )
+            return Response(self.create_responselist(job), status=status.HTTP_200_OK)
         else:
             # more detailed error message required
             return Response("Error message: experiment field is required")
@@ -140,29 +132,30 @@ class ResultView(APIView):
     """
     Implements get and post for Result model
     """
-    permission_classes = (IsAuthenticated, permissions.IsAdminOrReadOnly,)
+
+    permission_classes = (
+        IsAuthenticated,
+        permissions.IsAdminOrReadOnly,
+    )
     serializers_class = serializers.ResultSerializer
 
     def get(self, request, pk=None):
-        if pk is not None: # if primary key specified
+        if pk is not None:  # if primary key specified
             result = None
-            if request.user.is_staff: # if staff user
+            if request.user.is_staff:  # if staff user
                 if models.Result.objects.filter(pk=pk).exists():
                     result = models.Result.objects.get(pk=pk)
                     # here else statements are missing
-            else: # if regular user
-                if models.Result.objects.filter(
-                        pk=pk,
-                        user=request.user
-                    ).exists():
+            else:  # if regular user
+                if models.Result.objects.filter(pk=pk, user=request.user).exists():
                     result = models.Result.objects.get(pk=pk, user=request.user)
                     # else statement missing
             if result is not None:
                 serializer = self.serializers_class(result)
                 return Response(serializer.data)
             else:
-                return Response('Result does not exist.')
-        else: # if primary key is not specified
+                return Response("Result does not exist.")
+        else:  # if primary key is not specified
             if request.user.is_staff:
                 results = models.Result.objects.all()
             else:
@@ -171,32 +164,38 @@ class ResultView(APIView):
             return Response(serializer.data)
 
     def post(self, request):
-            serializer = self.serializers_class(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            job = models.Job.objects.get(id=request.data.get('job'))
-            result = serializer.save(user=job.user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = self.serializers_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        job = models.Job.objects.get(id=request.data.get("job"))
+        result = serializer.save(user=job.user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 # ModelViewSet specifically designed for managing models through API
 class UserProfileViewSet(viewsets.ModelViewSet):
     """Handle creating and updating profiles"""
+
     serializer_class = serializers.UserProfileSerializer
     # Determine objects in the database which are managed in this view
     queryset = models.UserProfile.objects.all()
     authentication_classes = (TokenAuthentication,)
     permission_classes = (permissions.UpdateOwnProfile,)
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('name', 'email',)
+    search_fields = (
+        "name",
+        "email",
+    )
 
 
 class UserLoginApiView(ObtainAuthToken):
     """Handle creating user authentication tokens"""
+
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
 
 
 class UserProfileFeedViewSet(viewsets.ModelViewSet):
     """Handles creating, reading and updating profile feed items"""
+
     authentication_classes = (TokenAuthentication,)
     serializer_class = serializers.ProfileFeedItemSerializer
     queryset = models.ProfileFeedItem.objects.all()

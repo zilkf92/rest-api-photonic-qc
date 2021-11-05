@@ -3,14 +3,11 @@ from rest_framework import serializers
 from cdl_rest_api import models
 
 
-class clusterStateSerializer(serializers.ModelSerializer):
+class QubitMeasurementItemSerializer(serializers.ModelSerializer):
     """ """
 
-    choices = ["linear", "ghz"]
-    graphState = serializers.ChoiceField(choices)
-
     class Meta:
-        model = models.clusterState
+        model = models.QubitMeasurementItem
         fields = "__all__"
 
 
@@ -22,28 +19,66 @@ class CircuitConfigurationItemSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class qubitComputingSerializer(serializers.ModelSerializer):
+class clusterStateSerializer(serializers.ModelSerializer):
+    """ """
+
+    choices = ["linear", "ghz"]
+    graphState = serializers.ChoiceField(choices)
+
+    class Meta:
+        model = models.clusterState
+        fields = "__all__"
+
+
+class qubitComputingSerializer(serializers.Serializer):
     """ """
 
     # To Do: Cluster state configurations need to be added here
     choices = [
         "horseshoe",
     ]
-    # pick all CircuitConfigurationItems with ForgeinKey:
-    # "qubitComputing" = incoming id
-    data = models.CircuitConfigurationItem.objects(qubitComputing="data.id")
     circuitConfiguration = serializers.ChoiceField(choices)
-    circuitAngles = CircuitConfigurationItemSerializer(many=True, data=data)
+    # assigns array of CircuitConfigurationItems for GET
+    circuitAngles = CircuitConfigurationItemSerializer(many=True)
 
     def create(self, validated_data):
         """ """
+        # remove circuitAngles array from validated_data and store it in
+        # circuitAnglesData
         circuitAnglesData = validated_data.pop("circuitAngles")
+        # create qubitComputing database entry
         qubitComputing = models.qubitComputing.objects.create(**validated_data)
+        # for each pair of Angle + Value, create CircuitConfigurationItem with
+        # ForeignKey = qubitComputing that has been created
         for circuitAngle in circuitAnglesData:
             models.CircuitConfigurationItem.objects.create(
-                qubitComputing=qubitComputing, **circuitAngle
+                # ** interchanges a dict to a tuple
+                qubitComputing=qubitComputing,
+                **circuitAngle
             )
         return qubitComputing
+
+
+class ComputeSettingsSerializer(serializers.ModelSerializer):
+    """ """
+
+    encodedQubitMeasurements = QubitMeasurementItemSerializer(many=True)
+
+    def create(self, validated_data):
+        """ """
+        encodedQubitMeasurementsData = validated_data.pop("encodedQubitMeasurements")
+        ComputeSettings = models.ComputeSettings.objects.create(**validated_data)
+        for encodedQubitMeasurement in encodedQubitMeasurementsData:
+            models.QubitMeasurementItem.objects.create(
+                ComputeSettings=ComputeSettings, **encodedQubitMeasurement
+            )
+        return ComputeSettings
+
+    class Meta:
+        model = models.ComputeSettings
+        fields = "__all__"
+        # return entire object of ForeignKey assignment not just id
+        depth = 1
 
 
 # To Do: Serializer fertigstellen
@@ -56,7 +91,16 @@ class ExperimentSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Experiment
         fields = "__all__"
-        depth = 2
+        depth = 1
+
+
+class ExperimentResultSerializer(serializers.ModelSerializer):
+    """ """
+
+    # check if startTime is readonly
+    class Meta:
+        model = models.ExperimentResult
+        fields = "__all__"
 
 
 class JobSerializer(serializers.ModelSerializer):

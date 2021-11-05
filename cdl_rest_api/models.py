@@ -34,6 +34,7 @@ class QubitMeasurementItem(models.Model):
     ComputeSettings = models.ForeignKey(
         "ComputeSettings",
         on_delete=models.CASCADE,
+        related_name="encodedQubitMeasurements",
     )
 
 
@@ -52,6 +53,7 @@ class CircuitConfigurationItem(models.Model):
     qubitComputing = models.ForeignKey(
         "qubitComputing",
         on_delete=models.CASCADE,
+        related_name="circuitAngles",
     )
 
 

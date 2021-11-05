@@ -45,7 +45,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
     # has_permission refers to user permission
     def has_permission(self, request, view):
 
-        if request.method == 'POST' or request.method == 'PUT':
+        if request.method == "POST" or request.method == "PUT":
             return request.user.is_staff
         else:
             return True
