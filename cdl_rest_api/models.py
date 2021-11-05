@@ -125,6 +125,10 @@ class ExperimentResult(models.Model):
     )
     singlePhotonRate = models.DecimalField()
     totalTime = models.PositiveIntegerField()
+    experiment = models.ForeignKey(
+        "Experiment",
+        on_delete=models.SET_NULL,
+    )
 
 
 class Job(models.Model):

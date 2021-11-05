@@ -13,6 +13,98 @@ from cdl_rest_api import serializers
 from cdl_rest_api import models
 from cdl_rest_api import permissions
 
+# instead of check for primarykey we create multiple endpoints
+class ExperimentDetailView(APIView):
+    """ """
+
+    # To Do: add corresponding result if available
+    permission_classes = (IsAuthenticated,)
+    serializers_class = serializers.ExperimentSerializer
+
+    def get(self, request, experiment_id):
+        """ """
+        experiment = None
+        if experiment_id is not None:
+            if request.user.is_staff:
+                if models.Experiment.objects.filter(
+                    experimentId=experiment_id
+                ).exists():
+                    experiment = models.Experiment.objects.get(
+                        experimentId=experiment_id
+                    )
+                else:
+                    return Response(
+                        "An Experiment with the specified ID was not found.",
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+            else:
+                if models.Experiment.objects.filter(
+                    experimentId=experiment_id,
+                    user=request.user,
+                ).exists():
+                    experiment = models.Experiment.objects.get(
+                        experimentId=experiment_id,
+                    )
+                else:
+                    return Response(
+                        "An Experiment with the specified ID was not found or does not belong to the current user.",
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+        if experiment is not None:
+            return Response(
+                serializers.ExperimentSerializer(
+                    data=experiment,
+                    status=status.HTTP_200_OK,
+                )
+            )
+        else:
+            return Response(
+                "Unexpected error.",
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+    def delete(self, request, experiment_id):
+        """ """
+
+        if experiment_id is not None:
+            if request.user.is_staff:
+                if models.Experiment.objects.filter(
+                    experimentId=experiment_id
+                ).exists():
+                    models.Experiment.objects.delete(experimentId=experiment_id)
+                    return Response(
+                        "OK - Experiment deleted successfully.",
+                        status=status.HTTP_204_NO_CONTENT,
+                    )
+                else:
+                    return Response(
+                        "An Experiment with the specified ID was not found.",
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+            else:
+                if models.Experiment.objects.filter(
+                    experimentId=experiment_id,
+                    user=request.user,
+                ).exists():
+                    models.Experiment.objects.delete(
+                        experimentId=experiment_id,
+                    )
+                    return Response(
+                        "OK - Experiment deleted successfully.",
+                        status=status.HTTP_204_NO_CONTENT,
+                    )
+                else:
+                    return Response(
+                        "An Experiment with the specified ID was not found or does not belong to the current user.",
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+
+        else:
+            return Response(
+                "Unexpected error.",
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
 
 class JobView(APIView):
     """

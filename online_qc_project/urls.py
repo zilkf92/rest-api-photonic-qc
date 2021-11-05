@@ -18,6 +18,6 @@ from django.urls import path, include
 
 # Include function allows to include URLs from other apps
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('cdl_rest_api.urls'))
+    path("admin/", admin.site.urls),
+    path("api/", include("cdl_rest_api.urls")),
 ]
