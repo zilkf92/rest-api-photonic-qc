@@ -68,10 +68,10 @@ class ExperimentDetailView(APIView):
             if experimentResult is not None:
                 return Response(
                     {
-                        experiment: serializers.ExperimentSerializer(
+                        "experiment": serializers.ExperimentSerializer(
                             data=experiment,
                         ),
-                        result: serializers.ExperimentResultSerializer(
+                        "result": serializers.ExperimentResultSerializer(
                             data=experimentResult
                         ),
                     },
