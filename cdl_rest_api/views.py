@@ -147,14 +147,19 @@ class ExperimentDetailView(APIView):
 class ExperimentListView(generics.ListCreateAPIView):
     """ """
 
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAdminUser]
+    queryset = models.Experiment.objects.all()
+    serializer_class = serializers.ExperimentSerializer
+    permission_classes = [
+        IsAuthenticated,
+    ]
 
     def list(self, request):
         # Note the use of `get_queryset()` instead of `self.queryset`
-        queryset = self.get_queryset()
-        serializer = UserSerializer(queryset, many=True)
+        if request.user.is_staff:
+            queryset = self.get_queryset()
+        else:
+            queryset = models.Experiment.objects.filter(user=request.user)
+        serializer = serializers.ExperimentSerializer(queryset, many=True)
         return Response(serializer.data)
 
 
