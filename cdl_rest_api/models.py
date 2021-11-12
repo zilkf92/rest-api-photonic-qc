@@ -110,6 +110,15 @@ class Experiment(ExperimentBase):
 
     experimentId = models.CharField(max_length=255)
     status = models.CharField(max_length=255)
+    # a user can have multiple Experiments
+    # currently only implemented in Experiment and not in Results
+    # as Result is assigned to Experiment (can be changed later to
+    # assign to user)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+    )
 
 
 class ExperimentResult(models.Model):

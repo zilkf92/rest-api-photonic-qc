@@ -85,6 +85,7 @@ class ComputeSettingsSerializer(serializers.ModelSerializer):
 class ExperimentSerializer(serializers.ModelSerializer):
     """ """
 
+    user = serializers.ReadOnlyField(source="user.email")
     choices = ["RUNNING", "FAILED", "DONE"]
     status = serializers.ChoiceField(choices)
 

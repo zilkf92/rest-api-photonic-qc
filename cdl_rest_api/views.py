@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response  # Standard Response object
 from rest_framework import status
 from rest_framework import viewsets
+from rest_framework import generics
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import filters
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -19,7 +20,7 @@ class ExperimentDetailView(APIView):
 
     # To Do: add corresponding result if available
     permission_classes = (IsAuthenticated,)
-    serializers_class = serializers.ExperimentSerializer
+    # serializers_class = serializers.ExperimentSerializer
 
     def get(self, request, experiment_id):
         """ """
@@ -33,6 +34,7 @@ class ExperimentDetailView(APIView):
                     experiment = models.Experiment.objects.get(
                         experimentId=experiment_id
                     )
+                    # if ExperimentResult doesn't exist, else remains None
                     if models.ExperimentResult.objects.filter(
                         experiment=experiment
                     ).exists():
@@ -44,9 +46,11 @@ class ExperimentDetailView(APIView):
                         "An Experiment with the specified ID was not found.",
                         status=status.HTTP_404_NOT_FOUND,
                     )
+            # if end user
             else:
                 if models.Experiment.objects.filter(
                     experimentId=experiment_id,
+                    # filtr also Experiment belongs to user
                     user=request.user,
                 ).exists():
                     experiment = models.Experiment.objects.get(
@@ -63,15 +67,16 @@ class ExperimentDetailView(APIView):
                         "An Experiment with the specified ID was not found or does not belong to the current user.",
                         status=status.HTTP_404_NOT_FOUND,
                     )
-
+        # this is an if statement independent from the one above
+        # logic returns required status messages according to api specs
         if experiment is not None:
             if experimentResult is not None:
                 return Response(
                     {
-                        "experiment": serializers.ExperimentSerializer(
+                        "experimentConfiguration": serializers.ExperimentSerializer(
                             data=experiment,
                         ),
-                        "result": serializers.ExperimentResultSerializer(
+                        "experimentResult": serializers.ExperimentResultSerializer(
                             data=experimentResult
                         ),
                     },
@@ -79,13 +84,17 @@ class ExperimentDetailView(APIView):
                 )
 
             else:
+                # if experiment is done, an ExperimentResult is also returned
                 return Response(
-                    serializers.ExperimentSerializer(
-                        data=experiment,
-                    ),
+                    {
+                        "experimentConfiguration": serializers.ExperimentSerializer(
+                            data=experiment,
+                        ),
+                    },
                     status=status.HTTP_200_OK,
                 )
         else:
+            # logic should not allow for this error to occur
             return Response(
                 "Unexpected error.",
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -126,12 +135,27 @@ class ExperimentDetailView(APIView):
                         "An Experiment with the specified ID was not found or does not belong to the current user.",
                         status=status.HTTP_404_NOT_FOUND,
                     )
-
+        # 401 Authorization information is missing or invalid. is authomatically
+        # handled with Django
         else:
             return Response(
                 "Unexpected error.",
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
+
+class ExperimentListView(generics.ListCreateAPIView):
+    """ """
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminUser]
+
+    def list(self, request):
+        # Note the use of `get_queryset()` instead of `self.queryset`
+        queryset = self.get_queryset()
+        serializer = UserSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class JobView(APIView):
