@@ -80,6 +80,8 @@ class clusterState(models.Model):
 class qubitComputing(models.Model):
     """ """
 
+    # qubitComputing has 1 field and 1 array
+    # array is handled in serializer
     circuitConfiguration = models.CharField(max_length=255)
 
 

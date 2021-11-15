@@ -31,6 +31,8 @@ class ExperimentDetailView(APIView):
                 if models.Experiment.objects.filter(
                     experimentId=experiment_id
                 ).exists():
+                    # get targets experiment_id specified in URL
+                    # not JSON id, or Project ID
                     experiment = models.Experiment.objects.get(
                         experimentId=experiment_id
                     )
@@ -46,7 +48,7 @@ class ExperimentDetailView(APIView):
                         "An Experiment with the specified ID was not found.",
                         status=status.HTTP_404_NOT_FOUND,
                     )
-            # if end user
+            # if enduser
             else:
                 if models.Experiment.objects.filter(
                     experimentId=experiment_id,
@@ -67,30 +69,41 @@ class ExperimentDetailView(APIView):
                         "An Experiment with the specified ID was not found or does not belong to the current user.",
                         status=status.HTTP_404_NOT_FOUND,
                     )
+
         # this is an if statement independent from the one above
         # logic returns required status messages according to api specs
+        # print(experiment)
         if experiment is not None:
             if experimentResult is not None:
+                experiment_serializer = serializers.ExperimentSerializer(
+                    data=experiment,
+                )
+                experiment_serializer.is_valid()
+                result_serializer = serializers.ExperimentResultSerializer(
+                    data=experimentResult
+                )
+                result_serializer.is_valid()
+                print(experiment_serializer.data)
                 return Response(
                     {
-                        "experimentConfiguration": serializers.ExperimentSerializer(
-                            data=experiment,
-                        ),
-                        "experimentResult": serializers.ExperimentResultSerializer(
-                            data=experimentResult
-                        ),
+                        "experimentConfiguration": experiment_serializer.data,
+                        "experimentResult": result_serializer.data,
                     },
                     status=status.HTTP_200_OK,
                 )
 
             else:
                 # if experiment is done, an ExperimentResult is also returned
+                experiment_serializer = serializers.ExperimentSerializer(
+                    experiment,
+                )
+                # experiment_serializer.is_valid()
+                # print(experiment_serializer.data)
                 return Response(
-                    {
-                        "experimentConfiguration": serializers.ExperimentSerializer(
-                            data=experiment,
-                        ),
-                    },
+                    # {
+                    #     "experimentConfiguration": experiment_serializer.data,
+                    # },
+                    experiment_serializer.data,
                     status=status.HTTP_200_OK,
                 )
         else:
@@ -108,7 +121,9 @@ class ExperimentDetailView(APIView):
                 if models.Experiment.objects.filter(
                     experimentId=experiment_id
                 ).exists():
-                    models.Experiment.objects.delete(experimentId=experiment_id)
+                    models.Experiment.objects.filter(
+                        experimentId=experiment_id
+                    ).delete()
                     return Response(
                         "OK - Experiment deleted successfully.",
                         status=status.HTTP_204_NO_CONTENT,
@@ -123,9 +138,9 @@ class ExperimentDetailView(APIView):
                     experimentId=experiment_id,
                     user=request.user,
                 ).exists():
-                    models.Experiment.objects.delete(
-                        experimentId=experiment_id,
-                    )
+                    models.Experiment.objects.filter(
+                        experimentId=experiment_id
+                    ).delete()
                     return Response(
                         "OK - Experiment deleted successfully.",
                         status=status.HTTP_204_NO_CONTENT,
@@ -160,7 +175,7 @@ class ExperimentListView(generics.ListCreateAPIView):
         else:
             queryset = models.Experiment.objects.filter(user=request.user)
         serializer = serializers.ExperimentSerializer(queryset, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class JobView(APIView):

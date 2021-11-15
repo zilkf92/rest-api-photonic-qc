@@ -3,6 +3,18 @@ from rest_framework import serializers
 from cdl_rest_api import models
 
 
+class PassThroughSerializer(serializers.Field):
+    def to_representation(self, instance):
+        # This function is for the direction: Instance -> Dict
+        # If you only need this, use a ReadOnlyField, or SerializerField
+        return None
+
+    def to_internal_value(self, data):
+        # This function is for the direction: Dict -> Instance
+        # Here you can manipulate the data if you need to.
+        return data
+
+
 class QubitMeasurementItemSerializer(serializers.ModelSerializer):
     """ """
 
@@ -30,7 +42,7 @@ class clusterStateSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class qubitComputingSerializer(serializers.Serializer):
+class qubitComputingSerializer(serializers.ModelSerializer):
     """ """
 
     # To Do: Cluster state configurations need to be added here
@@ -53,21 +65,37 @@ class qubitComputingSerializer(serializers.Serializer):
         for circuitAngle in circuitAnglesData:
             models.CircuitConfigurationItem.objects.create(
                 # ** interchanges a dict to a tuple
+                # object qubitComputing needs be created before being referenced
                 qubitComputing=qubitComputing,
                 **circuitAngle
             )
         return qubitComputing
 
+    class Meta:
+        # no depth argument since no ForeignKey in model
+        model = models.qubitComputing
+        fields = "__all__"
+
 
 class ComputeSettingsSerializer(serializers.ModelSerializer):
     """ """
 
+    qubitComputing = PassThroughSerializer()
+    clusterState = PassThroughSerializer()
     encodedQubitMeasurements = QubitMeasurementItemSerializer(many=True)
 
     def create(self, validated_data):
         """ """
         encodedQubitMeasurementsData = validated_data.pop("encodedQubitMeasurements")
-        ComputeSettings = models.ComputeSettings.objects.create(**validated_data)
+        qubitComputingData = validated_data.pop("qubitComputing")
+        serializer = qubitComputingSerializer(data=qubitComputingData)
+        serializer.is_valid()
+        qubitComputing = serializer.save()
+        clusterStateData = validated_data.pop("clusterState")
+        clusterState = models.clusterState.objects.create(**clusterStateData)
+        ComputeSettings = models.ComputeSettings.objects.create(
+            clusterState=clusterState, qubitComputing=qubitComputing
+        )
         for encodedQubitMeasurement in encodedQubitMeasurementsData:
             models.QubitMeasurementItem.objects.create(
                 ComputeSettings=ComputeSettings, **encodedQubitMeasurement
@@ -76,7 +104,7 @@ class ComputeSettingsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ComputeSettings
-        fields = "__all__"
+        fields = ("encodedQubitMeasurements", "qubitComputing", "clusterState")
         # return entire object of ForeignKey assignment not just id
         depth = 1
 
@@ -85,13 +113,37 @@ class ComputeSettingsSerializer(serializers.ModelSerializer):
 class ExperimentSerializer(serializers.ModelSerializer):
     """ """
 
+    ComputeSettings = PassThroughSerializer()
     user = serializers.ReadOnlyField(source="user.email")
+
     choices = ["RUNNING", "FAILED", "DONE"]
     status = serializers.ChoiceField(choices)
 
+    def create(self, validated_data):
+        computeSettingsData = validated_data.pop("ComputeSettings")
+        # codes lines reversed compared to above
+        # Foreign Key is in Experiment, not ComputeSettings
+        # 1 Experiment has 1 Compute Setting
+        serializer = ComputeSettingsSerializer(data=computeSettingsData)
+        serializer.is_valid()
+        # print(serializer.errors)
+        computeSetting = serializer.save()
+        Experiment = models.Experiment.objects.create(
+            ComputeSettings=computeSetting, **validated_data
+        )
+        return Experiment
+
     class Meta:
         model = models.Experiment
-        fields = "__all__"
+        fields = (
+            "ComputeSettings",
+            "user",
+            "status",
+            "experimentName",
+            "projectId",
+            "maxRuntime",
+            "experimentId",
+        )
         depth = 1
 
 
