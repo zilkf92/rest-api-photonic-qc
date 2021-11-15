@@ -23,17 +23,22 @@ class QubitMeasurementItem(models.Model):
         validators=[
             MinValueValidator(0),
             MaxValueValidator(360),
-        ]
+        ],
+        decimal_places=2,
+        max_digits=5,
     )
     phi = models.DecimalField(
         validators=[
             MinValueValidator(0),
             MaxValueValidator(360),
-        ]
+        ],
+        decimal_places=2,
+        max_digits=5,
     )
     ComputeSettings = models.ForeignKey(
         "ComputeSettings",
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,  # hatten hier CASCADE?
+        null=True,
         related_name="encodedQubitMeasurements",
     )
 
@@ -48,11 +53,14 @@ class CircuitConfigurationItem(models.Model):
         validators=[
             MinValueValidator(0),
             MaxValueValidator(360),
-        ]
+        ],
+        decimal_places=3,
+        max_digits=6,
     )
     qubitComputing = models.ForeignKey(
         "qubitComputing",
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
         related_name="circuitAngles",
     )
 
@@ -66,13 +74,13 @@ class clusterState(models.Model):
             MaxValueValidator(4),
         ]
     )
-    graphState = models.CharField()
+    graphState = models.CharField(max_length=255)
 
 
 class qubitComputing(models.Model):
     """ """
 
-    circuitConfiguration = models.CharField()
+    circuitConfiguration = models.CharField(max_length=255)
 
 
 class ComputeSettings(models.Model):
@@ -81,10 +89,12 @@ class ComputeSettings(models.Model):
     clusterState = models.ForeignKey(
         "clusterState",
         on_delete=models.SET_NULL,
+        null=True,
     )
     qubitComputing = models.ForeignKey(
         "qubitComputing",
         on_delete=models.SET_NULL,
+        null=True,
     )
 
 
@@ -102,6 +112,7 @@ class ExperimentBase(models.Model):
     ComputeSettings = models.ForeignKey(
         "ComputeSettings",
         on_delete=models.SET_NULL,
+        null=True,
     )
 
 
@@ -132,11 +143,15 @@ class ExperimentResult(models.Model):
             MaxValueValidator(8),
         ]
     )
-    singlePhotonRate = models.DecimalField()
+    singlePhotonRate = models.DecimalField(
+        decimal_places=2,
+        max_digits=8,
+    )
     totalTime = models.PositiveIntegerField()
     experiment = models.ForeignKey(
         "Experiment",
         on_delete=models.SET_NULL,
+        null=True,
     )
 
 
