@@ -1,0 +1,6 @@
+-r base.txt
+# Additional dependencies for Docker deployment
+django-cache-url==3.2.2
+dj-database-url==0.5.0
+whitenoise==4.1.3
+daphne

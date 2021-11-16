@@ -1,0 +1,1 @@
+$ASGI_VIRTUALENV/bin/daphne --verbosity $ASGI_VERBOSITY --access-log $ASGI_ACCESS_LOG --bind $ASGI_HOST --port $ASGI_PORT --proxy-headers $ASGI_CONFIG
