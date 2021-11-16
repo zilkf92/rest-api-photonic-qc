@@ -157,6 +157,7 @@ class ExperimentResult(models.Model):
     )
 
 
+# old models
 class Job(models.Model):
     """
     This is the model for the Job data structure that is sent to the Backend
