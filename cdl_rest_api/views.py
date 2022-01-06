@@ -178,6 +178,7 @@ class ExperimentListView(generics.ListCreateAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+# old views
 class JobView(APIView):
     """
     Implements get and post for Job model

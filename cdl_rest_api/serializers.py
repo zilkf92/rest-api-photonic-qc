@@ -156,6 +156,7 @@ class ExperimentResultSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+# old serializers
 class JobSerializer(serializers.ModelSerializer):
     """Serializes Job object"""
 
